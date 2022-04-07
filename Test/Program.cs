@@ -1,7 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using NewLife.Data;
 using NewLife.IoT.Drivers;
-using NewLife.IoT.Protocols;
 using NewLife.IoT.Thing;
 using NewLife.IoT.ThingModels;
 using NewLife.IoT.ThingSpecification;
@@ -12,8 +11,9 @@ var address = Console.ReadLine();
 
 if (address == null || address == "") address = "127.0.0.1:9600";
 
-var driver = new OmronTcpDriver();
-var node = driver.Open(new Channel(), new Dictionary<string, object> { { "Address", address }, { "host", (Byte)1 }, { "ReadFunctionCode", FunctionCodes.ReadCoil }, { "WriteFunctionCode", FunctionCodes.WriteCoils } });
+var driver = new OmronDriver();
+var pm = new { Address = address };
+var node = driver.Open(new Channel(), pm.ToDictionary());
 
 Console.WriteLine($"连接成功=>{address}！");
 
@@ -24,7 +24,7 @@ var str = Console.ReadLine();
 do
 {
     // 写入
-    var data = BitConverter.GetBytes(int.Parse(str));
+    var data = BitConverter.GetBytes(Int32.Parse(str));
     var point = new Point
     {
         Name = "test",

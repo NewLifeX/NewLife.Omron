@@ -43,12 +43,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NewLife.Core" Version="9.0.2022.304" />
-    <PackageReference Include="NewLife.IoT" Version="1.0.2022.314-beta0125" />
+    <PackageReference Include="NewLife.Core" Version="9.0.2022.406-beta0707" />
+    <PackageReference Include="NewLife.IoT" Version="1.0.2022.407-beta0523" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="..\Doc\leaf.png" Link="leaf.png" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Protocols\" />
   </ItemGroup>
 
 </Project>
