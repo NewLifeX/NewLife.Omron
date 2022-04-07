@@ -1,4 +1,4 @@
-﻿# NewLife.Siemens
+﻿# NewLife.Omron - 欧姆龙PLC
 
 ![GitHub top language](https://img.shields.io/github/languages/top/newlifex/NewLife.Omron?logo=github)
 ![GitHub License](https://img.shields.io/github/license/newlifex/NewLife.Omron?logo=github)
@@ -28,6 +28,7 @@ Nuget：NewLife.Omron
 |    [NewLife.Redis](https://github.com/NewLifeX/NewLife.Redis)    | 2017  | 维护中 |    √    | Redis客户端，微秒级延迟，百万级吞吐，丰富的消息队列，百亿级数据量项目验证            |
 | [NewLife.RocketMQ](https://github.com/NewLifeX/NewLife.RocketMQ) | 2018  | 维护中 |    √    | 支持Apache RocketMQ和阿里云消息队列，十亿级项目验证                                  |
 |     [NewLife.MQTT](https://github.com/NewLifeX/NewLife.MQTT)     | 2019  | 维护中 |    √    | 物联网消息协议，客户端支持阿里云物联网                                               |
+|      [NewLife.IoT](https://github.com/NewLifeX/NewLife.IoT)      | 2022  | 维护中 |    √    | IoT标准库，定义物联网领域的各种通信协议标准规范                                               |
 |     [NewLife.LoRa](https://github.com/NewLifeX/NewLife.LoRa)     | 2016  | 维护中 |    √    | 超低功耗的物联网远程通信协议LoRaWAN                                                  |
 |                             产品平台                             |       |        |         | 产品平台级，编译部署即用，个性化自定义                                               |
 |           [AntJob](https://github.com/NewLifeX/AntJob)           | 2019  | 维护中 |    √    | 蚂蚁调度，分布式大数据计算平台（实时/离线），蚂蚁搬家分片思想，万亿级数据量项目验证  |
