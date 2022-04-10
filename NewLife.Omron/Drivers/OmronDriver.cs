@@ -3,6 +3,7 @@ using HslCommunication.Profinet.Omron;
 using NewLife.IoT.Drivers;
 using NewLife.IoT.ThingModels;
 using NewLife.Log;
+using NewLife.Serialization;
 
 namespace NewLife.Omron.Drivers
 {
@@ -12,9 +13,35 @@ namespace NewLife.Omron.Drivers
     [Driver("OmronPLC")]
     public class OmronDriver : IDriver
     {
+        /// <summary>
+        /// 数据顺序
+        /// </summary>
+        private readonly DataFormat dataFormat = DataFormat.DCBA;
+
         private OmronFinsNet _omronFinsNet;
 
-        private readonly DataFormat dataFormat = DataFormat.DCBA;
+        /// <summary>
+        /// 打开通道数量
+        /// </summary>
+        private Int32 _nodes;
+
+
+        /// <summary>
+        /// 从点位中解析地址
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public virtual String GetAddress(IPoint point)
+        {
+            if (point == null) throw new ArgumentException("点位信息不能为空！");
+
+            // 去掉冒号后面的位域
+            var addr = point.Address;
+            var p = addr.IndexOf(':');
+            if (p > 0) addr = addr[..p];
+
+            return addr;
+        }
 
         /// <summary>
         /// 打开通道。一个ModbusTcp设备可能分为多个通道读取，需要共用Tcp连接，以不同节点区分
@@ -54,15 +81,10 @@ namespace NewLife.Omron.Drivers
 
                         var connect = _omronFinsNet.ConnectServer();
 
-                        //var node = base.Open(channel, parameters);
-
-                        //var data = new ushort[initData.Length/2];
-                        //Buffer.BlockCopy(initData, 0, data, 0, initData.Length);
-
-                        //_modbus.Write(FunctionCodes.WriteCoils, 1, 1, data);
-
                         if (!connect.IsSuccess) throw new Exception($"连接失败：{connect.Message}");
                     }
+
+                    Interlocked.Increment(ref _nodes);
                 }
             }
 
@@ -75,8 +97,12 @@ namespace NewLife.Omron.Drivers
         /// <param name="node"></param>
         public void Close(INode node)
         {
-            _omronFinsNet.TryDispose();
-            _omronFinsNet = null;
+            if (Interlocked.Decrement(ref _nodes) <= 0)
+            {
+                _omronFinsNet?.ConnectClose();
+                _omronFinsNet.TryDispose();
+                _omronFinsNet = null;
+            }
         }
 
         /// <summary>
@@ -94,9 +120,10 @@ namespace NewLife.Omron.Drivers
             foreach (var point in points)
             {
                 var name = point.Name;
-                var addr = point.Address;
+                var addr = GetAddress(point);
                 var length = point.Length;
                 var data = _omronFinsNet.Read(addr, (UInt16)(length / 2));
+                if (!data.IsSuccess) throw new Exception($"读取数据失败：{data.ToJson()}");
                 dic[name] = data.Content;
             }
 
@@ -113,7 +140,7 @@ namespace NewLife.Omron.Drivers
         /// <exception cref="ArgumentException"></exception>
         public virtual Object Write(INode node, IPoint point, Object value)
         {
-            var addr = point.Address; // "D100";
+            var addr = GetAddress(point);
             var res = value switch
             {
                 Int32 v1 => _omronFinsNet.Write(addr, v1),

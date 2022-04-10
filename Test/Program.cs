@@ -15,6 +15,9 @@ var driver = new OmronDriver();
 var pm = new { Address = address };
 var node = driver.Open(new Channel(), pm.ToDictionary());
 
+// 测试打开两个通道
+node = driver.Open(new Channel(), pm.ToDictionary());
+
 Console.WriteLine($"连接成功=>{address}！");
 
 Console.WriteLine("请输入整数值，按q退出：");
@@ -28,7 +31,7 @@ do
     var point = new Point
     {
         Name = "test",
-        Address = "D100",
+        Address = "D100:50",
         Type = "Int32",
         Length = data.Length
     };
@@ -44,6 +47,10 @@ do
     Console.WriteLine("请输入整数值，按q退出：");
 
 } while ((str = Console.ReadLine()) != "q");
+
+// 断开连接
+driver.Close(node);
+driver.Close(node);
 
 
 public class Channel : IChannel
