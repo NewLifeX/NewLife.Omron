@@ -1,4 +1,5 @@
-﻿using HslCommunication.Core;
+﻿using System.ComponentModel;
+using HslCommunication.Core;
 using HslCommunication.Profinet.Omron;
 using NewLife.IoT.Drivers;
 using NewLife.IoT.ThingModels;
@@ -11,6 +12,7 @@ namespace NewLife.Omron.Drivers
     /// 欧姆龙PLC驱动
     /// </summary>
     [Driver("OmronPLC")]
+    [DisplayName("欧姆龙PLC")]
     public class OmronDriver : IDriver
     {
         /// <summary>
