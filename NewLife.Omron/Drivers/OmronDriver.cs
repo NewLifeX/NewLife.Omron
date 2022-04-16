@@ -16,7 +16,7 @@ namespace NewLife.Omron.Drivers
         /// <summary>
         /// 数据顺序
         /// </summary>
-        private readonly DataFormat dataFormat = DataFormat.DCBA;
+        private readonly DataFormat dataFormat = DataFormat.CDAB;
 
         private OmronFinsNet _omronFinsNet;
 
