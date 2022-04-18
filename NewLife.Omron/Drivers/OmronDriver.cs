@@ -4,6 +4,7 @@ using HslCommunication.Profinet.Omron;
 using NewLife.IoT.Drivers;
 using NewLife.IoT.ThingModels;
 using NewLife.Log;
+using NewLife.Omron.Config;
 using NewLife.Serialization;
 
 namespace NewLife.Omron.Drivers
@@ -15,6 +16,23 @@ namespace NewLife.Omron.Drivers
     [DisplayName("欧姆龙PLC")]
     public class OmronDriver : IDriver
     {
+        static OmronDriver()
+        {
+            var cfg = OmronConfig.Current;
+            if (cfg.AuthorizationCode.IsNullOrWhiteSpace())
+            {
+                XTrace.WriteLine("欧姆龙PLC授权码为空！请到Config/OmronConfig中进行设置。");
+            }
+            else if (!HslCommunication.Authorization.SetAuthorizationCode(cfg.AuthorizationCode))
+            {
+                XTrace.WriteLine("欧姆龙PLC授权成功！");
+            }
+            else
+            {
+                XTrace.WriteLine("欧姆龙PLC授权失败！只能使用8个小时。");
+            }
+        }
+
         /// <summary>
         /// 数据顺序
         /// </summary>
@@ -27,6 +45,7 @@ namespace NewLife.Omron.Drivers
         /// </summary>
         private Int32 _nodes;
 
+        #region 方法
 
         /// <summary>
         /// 从点位中解析地址
@@ -161,6 +180,7 @@ namespace NewLife.Omron.Drivers
         /// <param name="parameters"></param>
         /// <exception cref="NotImplementedException"></exception>
         public void Control(INode node, IDictionary<String, Object> parameters) => throw new NotImplementedException();
+        #endregion
 
         #region 日志
         /// <summary>链路追踪</summary>
