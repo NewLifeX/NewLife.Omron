@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using HslCommunication.Core;
 using HslCommunication.Profinet.Omron;
+using NewLife.IoT;
 using NewLife.IoT.Drivers;
 using NewLife.IoT.ThingModels;
 using NewLife.Log;
@@ -14,7 +15,7 @@ namespace NewLife.Omron.Drivers
     /// </summary>
     [Driver("OmronPLC")]
     [DisplayName("欧姆龙PLC")]
-    public class OmronDriver : IDriver
+    public class OmronDriver : DisposeBase, IDriver, ILogFeature, ITracerFeature
     {
         static OmronDriver()
         {
@@ -33,10 +34,10 @@ namespace NewLife.Omron.Drivers
             }
         }
 
-        /// <summary>
-        /// 数据顺序
-        /// </summary>
-        private readonly DataFormat dataFormat = DataFormat.CDAB;
+        ///// <summary>
+        ///// 数据顺序
+        ///// </summary>
+        //private readonly DataFormat dataFormat = DataFormat.CDAB;
 
         private OmronFinsNet _omronFinsNet;
 
@@ -46,6 +47,16 @@ namespace NewLife.Omron.Drivers
         private Int32 _nodes;
 
         #region 方法
+        /// <summary>
+        /// 创建驱动参数对象，可序列化成Xml/Json作为该协议的参数模板
+        /// </summary>
+        /// <returns></returns>
+        public virtual IDriverParameter CreateParameter() => new OmronParameter
+        {
+            Address = "127.0.0.1:9600",
+            DA2 = 0,
+            DataFormat = "CDAB",
+        };
 
         /// <summary>
         /// 从点位中解析地址
@@ -67,21 +78,25 @@ namespace NewLife.Omron.Drivers
         /// <summary>
         /// 打开通道。一个ModbusTcp设备可能分为多个通道读取，需要共用Tcp连接，以不同节点区分
         /// </summary>
-        /// <param name="channel">通道</param>
+        /// <param name="device">通道</param>
         /// <param name="parameters">参数</param>
         /// <returns></returns>
-        public virtual INode Open(IChannel channel, IDictionary<String, Object> parameters)
+        public virtual INode Open(IDevice device, IDictionary<String, Object> parameters)
         {
-            var address = parameters["Address"] as String;
+            var pm = JsonHelper.Convert<OmronParameter>(parameters);
+            var address = pm.Address;
             if (address.IsNullOrEmpty()) throw new ArgumentException("参数中未指定地址address");
 
-            var i = address.IndexOf(':');
-            if (i < 0) throw new ArgumentException($"参数中地址address格式错误:{address}");
+            var p = address.IndexOf(':');
+            if (p < 0) throw new ArgumentException($"参数中地址address格式错误:{address}");
 
             var node = new OmronNode
             {
                 Address = address,
-                Channel = channel,
+
+                Driver = this,
+                Device = device,
+                Parameter = pm,
             };
 
             if (_omronFinsNet == null)
@@ -94,20 +109,24 @@ namespace NewLife.Omron.Drivers
                         {
                             ConnectTimeOut = 2000,
 
-                            IpAddress = address[..i],
-                            Port = address[(i + 1)..].ToInt(),
-                            DA2 = 0
+                            IpAddress = address[..p],
+                            Port = address[(p + 1)..].ToInt(),
+                            DA2 = pm.DA2,
                         };
-                        _omronFinsNet.ByteTransform.DataFormat = dataFormat;
+
+                        if (!pm.DataFormat.IsNullOrEmpty() && Enum.TryParse(typeof(DataFormat), pm.DataFormat, out var format))
+                        {
+                            _omronFinsNet.ByteTransform.DataFormat = (DataFormat)format;
+                        }
 
                         var connect = _omronFinsNet.ConnectServer();
 
                         if (!connect.IsSuccess) throw new Exception($"连接失败：{connect.Message}");
                     }
-
-                    Interlocked.Increment(ref _nodes);
                 }
             }
+
+            Interlocked.Increment(ref _nodes);
 
             return node;
         }

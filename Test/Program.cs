@@ -1,9 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
-using NewLife.Data;
-using NewLife.IoT.Drivers;
-using NewLife.IoT.Thing;
+﻿using NewLife.IoT.Drivers;
 using NewLife.IoT.ThingModels;
-using NewLife.IoT.ThingSpecification;
 using NewLife.Omron.Drivers;
 
 Console.WriteLine("服务端地址默认为：127.0.0.1:9600，保持默认请回车开始连接，否则请输入服务端地址：");
@@ -12,11 +8,11 @@ var address = Console.ReadLine();
 if (address == null || address == "") address = "127.0.0.1:9600";
 
 var driver = new OmronDriver();
-var pm = new { Address = address };
-var node = driver.Open(new Channel(), pm.ToDictionary());
+var pm = new OmronParameter { Address = address };
+var node = driver.Open(null, pm);
 
 // 测试打开两个通道
-node = driver.Open(new Channel(), pm.ToDictionary());
+node = driver.Open(null, pm);
 
 Console.WriteLine($"连接成功=>{address}！");
 
@@ -51,14 +47,6 @@ do
 // 断开连接
 driver.Close(node);
 driver.Close(node);
-
-
-public class Channel : IChannel
-{
-    public IThing Thing { get; set; }
-
-    public ThingSpec Specification { get; set; }
-}
 
 public class Point : IPoint
 {
