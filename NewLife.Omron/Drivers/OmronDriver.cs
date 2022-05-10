@@ -69,7 +69,7 @@ namespace NewLife.Omron.Drivers
 
             // 去掉冒号后面的位域
             var addr = point.Address;
-            var p = addr.IndexOf(':');
+            var p = addr.IndexOfAny(new[] { ':', '.' });
             if (p > 0) addr = addr[..p];
 
             return addr;
@@ -87,7 +87,7 @@ namespace NewLife.Omron.Drivers
             var address = pm.Address;
             if (address.IsNullOrEmpty()) throw new ArgumentException("参数中未指定地址address");
 
-            var p = address.IndexOf(':');
+            var p = address.IndexOfAny(new[] { ':', '.' });
             if (p < 0) throw new ArgumentException($"参数中地址address格式错误:{address}");
 
             var node = new OmronNode
@@ -159,12 +159,11 @@ namespace NewLife.Omron.Drivers
 
             foreach (var point in points)
             {
-                var name = point.Name;
                 var addr = GetAddress(point);
-                var length = point.Length;
-                var data = _omronFinsNet.Read(addr, (UInt16)(length / 2));
+                var data = _omronFinsNet.Read(addr, (UInt16)point.Length);
                 if (!data.IsSuccess) throw new Exception($"读取数据失败：{data.ToJson()}");
-                dic[name] = data.Content;
+
+                dic[point.Name] = data.Content;
             }
 
             return dic;
