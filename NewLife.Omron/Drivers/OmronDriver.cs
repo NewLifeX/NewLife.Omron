@@ -15,7 +15,7 @@ namespace NewLife.Omron.Drivers;
 /// </summary>
 [Driver("OmronPLC")]
 [DisplayName("欧姆龙PLC")]
-public class OmronDriver : DisposeBase, IDriver, ILogFeature, ITracerFeature
+public class OmronDriver : DriverBase
 {
     static OmronDriver()
     {
@@ -51,18 +51,12 @@ public class OmronDriver : DisposeBase, IDriver, ILogFeature, ITracerFeature
     /// 创建驱动参数对象，可序列化成Xml/Json作为该协议的参数模板
     /// </summary>
     /// <returns></returns>
-    public virtual IDriverParameter GetDefaultParameter() => new OmronParameter
+    public override IDriverParameter GetDefaultParameter() => new OmronParameter
     {
         Address = "127.0.0.1:9600",
         DA2 = 0,
         DataFormat = "CDAB",
     };
-
-    /// <summary>
-    /// 获取默认点位
-    /// </summary>
-    /// <returns></returns>
-    public virtual IPoint[] GetDefaultPoints() => null;
 
     /// <summary>
     /// 从点位中解析地址
@@ -76,7 +70,7 @@ public class OmronDriver : DisposeBase, IDriver, ILogFeature, ITracerFeature
         // 去掉冒号后面的位域
         var addr = point.Address;
         var p = addr.IndexOfAny(new[] { ':', '.' });
-        if (p > 0) addr = addr.Substring(0, p);
+        if (p > 0) addr = addr[..p];
 
         return addr;
     }
@@ -87,7 +81,7 @@ public class OmronDriver : DisposeBase, IDriver, ILogFeature, ITracerFeature
     /// <param name="device">通道</param>
     /// <param name="parameters">参数</param>
     /// <returns></returns>
-    public virtual INode Open(IDevice device, IDictionary<String, Object> parameters)
+    public override INode Open(IDevice device, IDictionary<String, Object> parameters)
     {
         var pm = JsonHelper.Convert<OmronParameter>(parameters);
         var address = pm.Address;
@@ -115,8 +109,8 @@ public class OmronDriver : DisposeBase, IDriver, ILogFeature, ITracerFeature
                     {
                         ConnectTimeOut = 2000,
 
-                        IpAddress = address.Substring(0, p),
-                        Port = address.Substring(p + 1).ToInt(),
+                        IpAddress = address[..p],
+                        Port = address[(p + 1)..].ToInt(),
                         DA2 = pm.DA2,
                     };
 
@@ -141,7 +135,7 @@ public class OmronDriver : DisposeBase, IDriver, ILogFeature, ITracerFeature
     /// 关闭设备驱动
     /// </summary>
     /// <param name="node"></param>
-    public void Close(INode node)
+    public override void Close(INode node)
     {
         if (Interlocked.Decrement(ref _nodes) <= 0)
         {
@@ -157,7 +151,7 @@ public class OmronDriver : DisposeBase, IDriver, ILogFeature, ITracerFeature
     /// <param name="node">节点对象，可存储站号等信息，仅驱动自己识别</param>
     /// <param name="points">点位集合，Address属性地址示例：D100、C100、W100、H100</param>
     /// <returns></returns>
-    public virtual IDictionary<String, Object> Read(INode node, IPoint[] points)
+    public override IDictionary<String, Object> Read(INode node, IPoint[] points)
     {
         var dic = new Dictionary<String, Object>();
 
@@ -183,7 +177,7 @@ public class OmronDriver : DisposeBase, IDriver, ILogFeature, ITracerFeature
     /// <param name="value">数据</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public virtual Object Write(INode node, IPoint point, Object value)
+    public override Object Write(INode node, IPoint point, Object value)
     {
         var addr = GetAddress(point);
         var res = value switch
@@ -196,26 +190,5 @@ public class OmronDriver : DisposeBase, IDriver, ILogFeature, ITracerFeature
         };
         return res;
     }
-
-    /// <summary>
-    /// 控制设备，特殊功能使用
-    /// </summary>
-    /// <param name="node"></param>
-    /// <param name="parameters"></param>
-    /// <exception cref="NotImplementedException"></exception>
-    public void Control(INode node, IDictionary<String, Object> parameters) => throw new NotImplementedException();
-    #endregion
-
-    #region 日志
-    /// <summary>链路追踪</summary>
-    public ITracer Tracer { get; set; }
-
-    /// <summary>日志</summary>
-    public ILog Log { get; set; }
-
-    /// <summary>写日志</summary>
-    /// <param name="format"></param>
-    /// <param name="args"></param>
-    public void WriteLog(String format, params Object[] args) => Log?.Info(format, args);
     #endregion
 }
