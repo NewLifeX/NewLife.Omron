@@ -51,7 +51,7 @@ public class OmronDriver : DriverBase
     /// 创建驱动参数对象，可序列化成Xml/Json作为该协议的参数模板
     /// </summary>
     /// <returns></returns>
-    public override IDriverParameter GetDefaultParameter() => new OmronParameter
+    public override IDriverParameter CreateParameter(String parameter) => new OmronParameter
     {
         Address = "127.0.0.1:9600",
         DA2 = 0,
