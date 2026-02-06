@@ -37,7 +37,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HslCommunication" Version="12.6.2" />
+    <PackageReference Include="HslCommunication" Version="12.6.3" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -45,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NewLife.IoT" Version="2.7.2026.102" />
+    <PackageReference Include="NewLife.IoT" Version="2.7.2026.201" />
   </ItemGroup>
 
   <ItemGroup>
