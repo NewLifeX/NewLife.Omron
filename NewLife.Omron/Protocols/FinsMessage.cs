@@ -53,6 +53,10 @@ public class FinsMessage
             Command = FinsCommand.Write
         };
 
+        // 验证数据长度（必须是偶数，因为PLC以字为单位）
+        if (data.Length % 2 != 0)
+            throw new ArgumentException($"写入数据长度必须是偶数（字对齐），当前长度: {data.Length}");
+
         // 构建写入命令数据
         var addrBytes = address.ToBytes();
         var length = (UInt16)(data.Length / 2); // 字长度

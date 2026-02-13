@@ -18,12 +18,12 @@ public class ByteTransform
         if (data == null || data.Length < offset + 2)
             throw new ArgumentException("数据长度不足");
 
+        // 对于16位数据，只需要考虑字节序（大端/小端）
+        // ABCD/CDAB = 大端, BADC/DCBA = 小端
         return DataFormat switch
         {
-            DataFormat.ABCD => BitConverter.ToInt16(new[] { data[offset + 1], data[offset] }, 0),
-            DataFormat.BADC => BitConverter.ToInt16(new[] { data[offset], data[offset + 1] }, 0),
-            DataFormat.CDAB => BitConverter.ToInt16(new[] { data[offset + 1], data[offset] }, 0),
-            DataFormat.DCBA => BitConverter.ToInt16(new[] { data[offset], data[offset + 1] }, 0),
+            DataFormat.ABCD or DataFormat.CDAB => BitConverter.ToInt16(new[] { data[offset + 1], data[offset] }, 0),
+            DataFormat.BADC or DataFormat.DCBA => BitConverter.ToInt16(new[] { data[offset], data[offset + 1] }, 0),
             _ => BitConverter.ToInt16(new[] { data[offset], data[offset + 1] }, 0)
         };
     }
@@ -36,12 +36,12 @@ public class ByteTransform
         if (data == null || data.Length < offset + 2)
             throw new ArgumentException("数据长度不足");
 
+        // 对于16位数据，只需要考虑字节序（大端/小端）
+        // ABCD/CDAB = 大端, BADC/DCBA = 小端
         return DataFormat switch
         {
-            DataFormat.ABCD => BitConverter.ToUInt16(new[] { data[offset + 1], data[offset] }, 0),
-            DataFormat.BADC => BitConverter.ToUInt16(new[] { data[offset], data[offset + 1] }, 0),
-            DataFormat.CDAB => BitConverter.ToUInt16(new[] { data[offset + 1], data[offset] }, 0),
-            DataFormat.DCBA => BitConverter.ToUInt16(new[] { data[offset], data[offset + 1] }, 0),
+            DataFormat.ABCD or DataFormat.CDAB => BitConverter.ToUInt16(new[] { data[offset + 1], data[offset] }, 0),
+            DataFormat.BADC or DataFormat.DCBA => BitConverter.ToUInt16(new[] { data[offset], data[offset + 1] }, 0),
             _ => BitConverter.ToUInt16(new[] { data[offset], data[offset + 1] }, 0)
         };
     }
@@ -136,10 +136,8 @@ public class ByteTransform
         var bytes = BitConverter.GetBytes(value);
         return DataFormat switch
         {
-            DataFormat.ABCD => new[] { bytes[1], bytes[0] },
-            DataFormat.BADC => new[] { bytes[0], bytes[1] },
-            DataFormat.CDAB => new[] { bytes[1], bytes[0] },
-            DataFormat.DCBA => new[] { bytes[0], bytes[1] },
+            DataFormat.ABCD or DataFormat.CDAB => new[] { bytes[1], bytes[0] },
+            DataFormat.BADC or DataFormat.DCBA => new[] { bytes[0], bytes[1] },
             _ => bytes
         };
     }
@@ -152,10 +150,8 @@ public class ByteTransform
         var bytes = BitConverter.GetBytes(value);
         return DataFormat switch
         {
-            DataFormat.ABCD => new[] { bytes[1], bytes[0] },
-            DataFormat.BADC => new[] { bytes[0], bytes[1] },
-            DataFormat.CDAB => new[] { bytes[1], bytes[0] },
-            DataFormat.DCBA => new[] { bytes[0], bytes[1] },
+            DataFormat.ABCD or DataFormat.CDAB => new[] { bytes[1], bytes[0] },
+            DataFormat.BADC or DataFormat.DCBA => new[] { bytes[0], bytes[1] },
             _ => bytes
         };
     }

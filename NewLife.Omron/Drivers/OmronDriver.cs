@@ -53,7 +53,7 @@ public class OmronDriver : DriverBase
     }
 
     /// <summary>
-    /// 打开通道。一个ModbusTcp设备可能分为多个通道读取,需要共用Tcp连接，以不同节点区分
+    /// 打开通道。一个Omron FINS设备可能分为多个通道读取,需要共用Tcp连接，以不同节点区分
     /// </summary>
     /// <param name="device">通道</param>
     /// <param name="parameter">参数</param>
@@ -167,7 +167,7 @@ public class OmronDriver : DriverBase
             UInt16 v4 => _byteTransform.TransByte(v4),
             Single v5 => _byteTransform.TransByte(v5),
             Double v6 => _byteTransform.TransByte(v6),
-            String v7 => System.Text.Encoding.ASCII.GetBytes(v7),
+            String v7 => System.Text.Encoding.UTF8.GetBytes(v7), // UTF-8编码支持中文等多字节字符
             Boolean v8 => new Byte[] { (Byte)(v8 ? 1 : 0) },
             Byte[] v9 => v9,
             _ => throw new ArgumentException($"暂不支持写入该类型数据: {value?.GetType().Name}"),

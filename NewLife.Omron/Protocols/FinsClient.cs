@@ -277,7 +277,7 @@ public class FinsClient : IDisposable
     /// </summary>
     private Byte GetNextServiceId()
     {
-        return _serviceId = (Byte)((_serviceId + 1) % 256);
+        return ++_serviceId; // Byte自然溢出到0
     }
 
     /// <summary>
