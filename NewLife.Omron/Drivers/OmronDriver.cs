@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel;
-using HslCommunication.Core;
-using HslCommunication.Profinet.Omron;
 using NewLife.IoT;
 using NewLife.IoT.Drivers;
 using NewLife.IoT.ThingModels;
 using NewLife.Log;
-using NewLife.Omron.Config;
+using NewLife.Omron.Protocols;
 using NewLife.Serialization;
 
 namespace NewLife.Omron.Drivers;
@@ -17,29 +15,8 @@ namespace NewLife.Omron.Drivers;
 [DisplayName("欧姆龙PLC")]
 public class OmronDriver : DriverBase
 {
-    static OmronDriver()
-    {
-        var cfg = OmronConfig.Current;
-        if (cfg.AuthorizationCode.IsNullOrWhiteSpace())
-        {
-            XTrace.WriteLine("欧姆龙PLC授权码为空！请到Config/OmronConfig中进行设置。");
-        }
-        else if (!HslCommunication.Authorization.SetAuthorizationCode(cfg.AuthorizationCode))
-        {
-            XTrace.WriteLine("欧姆龙PLC授权成功！");
-        }
-        else
-        {
-            XTrace.WriteLine("欧姆龙PLC授权失败！只能使用8个小时。");
-        }
-    }
-
-    ///// <summary>
-    ///// 数据顺序
-    ///// </summary>
-    //private readonly DataFormat dataFormat = DataFormat.CDAB;
-
-    private OmronFinsNet _omronFinsNet;
+    private FinsClient _finsClient;
+    private ByteTransform _byteTransform;
 
     /// <summary>
     /// 打开通道数量
@@ -76,7 +53,7 @@ public class OmronDriver : DriverBase
     }
 
     /// <summary>
-    /// 打开通道。一个ModbusTcp设备可能分为多个通道读取，需要共用Tcp连接，以不同节点区分
+    /// 打开通道。一个ModbusTcp设备可能分为多个通道读取,需要共用Tcp连接，以不同节点区分
     /// </summary>
     /// <param name="device">通道</param>
     /// <param name="parameter">参数</param>
@@ -99,29 +76,31 @@ public class OmronDriver : DriverBase
             Parameter = pm,
         };
 
-        if (_omronFinsNet == null)
+        if (_finsClient == null)
         {
             lock (this)
             {
-                if (_omronFinsNet == null)
+                if (_finsClient == null)
                 {
-                    _omronFinsNet = new OmronFinsNet
+                    _finsClient = new FinsClient
                     {
                         ConnectTimeOut = 2000,
-
                         IpAddress = address[..p],
                         Port = address[(p + 1)..].ToInt(),
                         DA2 = pm.DA2,
                     };
 
+                    // 设置数据格式
                     if (!pm.DataFormat.IsNullOrEmpty() && Enum.TryParse<DataFormat>(pm.DataFormat, out var format))
                     {
-                        _omronFinsNet.ByteTransform.DataFormat = format;
+                        _finsClient.DataFormat = format;
                     }
 
-                    var connect = _omronFinsNet.ConnectServer();
+                    // 创建字节转换器
+                    _byteTransform = new ByteTransform { DataFormat = _finsClient.DataFormat };
 
-                    if (!connect.IsSuccess) throw new Exception($"连接失败：{connect.Message}");
+                    // 连接服务器
+                    _finsClient.Connect();
                 }
             }
         }
@@ -139,9 +118,9 @@ public class OmronDriver : DriverBase
     {
         if (Interlocked.Decrement(ref _nodes) <= 0)
         {
-            _omronFinsNet?.ConnectClose();
-            _omronFinsNet.TryDispose();
-            _omronFinsNet = null;
+            _finsClient?.Close();
+            _finsClient.TryDispose();
+            _finsClient = null;
         }
     }
 
@@ -160,10 +139,9 @@ public class OmronDriver : DriverBase
         foreach (var point in points)
         {
             var addr = GetAddress(point);
-            var data = _omronFinsNet.Read(addr, (UInt16)point.Length);
-            if (!data.IsSuccess) throw new Exception($"读取数据失败：{data.ToJson()}");
+            var data = _finsClient.Read(addr, (UInt16)point.Length);
 
-            dic[point.Name] = data.Content;
+            dic[point.Name] = data;
         }
 
         return dic;
@@ -180,15 +158,23 @@ public class OmronDriver : DriverBase
     public override Object Write(INode node, IPoint point, Object value)
     {
         var addr = GetAddress(point);
-        var res = value switch
+        
+        Byte[] data = value switch
         {
-            Int32 v1 => _omronFinsNet.Write(addr, v1),
-            String v2 => _omronFinsNet.Write(addr, v2),
-            Boolean v3 => _omronFinsNet.Write(addr, v3),
-            Byte[] v4 => _omronFinsNet.Write(addr, v4),
-            _ => throw new ArgumentException("暂不支持写入该类型数据！"),
+            Int32 v1 => _byteTransform.TransByte(v1),
+            Int16 v2 => _byteTransform.TransByte(v2),
+            UInt32 v3 => _byteTransform.TransByte(v3),
+            UInt16 v4 => _byteTransform.TransByte(v4),
+            Single v5 => _byteTransform.TransByte(v5),
+            Double v6 => _byteTransform.TransByte(v6),
+            String v7 => System.Text.Encoding.ASCII.GetBytes(v7),
+            Boolean v8 => new Byte[] { (Byte)(v8 ? 1 : 0) },
+            Byte[] v9 => v9,
+            _ => throw new ArgumentException($"暂不支持写入该类型数据: {value?.GetType().Name}"),
         };
-        return res;
+
+        _finsClient.Write(addr, data);
+        return true;
     }
     #endregion
 }
