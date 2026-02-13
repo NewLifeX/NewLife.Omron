@@ -6,10 +6,17 @@
 ![Nuget](https://img.shields.io/nuget/v/NewLife.Omron?logo=nuget)
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/NewLife.Omron?label=dev%20nuget&logo=nuget)
 
-欧姆龙PLC协议  
+欧姆龙PLC协议，基于NewLife风格独立实现FINS/TCP二进制协议，无第三方依赖。
 
 源码： https://github.com/NewLifeX/NewLife.Omron  
 Nuget：NewLife.Omron  
+
+## 特性
+- 纯.NET实现的FINS/TCP协议，无需第三方依赖
+- 支持多种数据区：DM、CIO、WR、HR、AR、EM等
+- 支持多种数据格式：ABCD、BADC、CDAB、DCBA
+- 支持读写操作：Int16/32、UInt16/32、Float、Double、Boolean、String、Byte[]
+- 基于NewLife.IoT标准库，与IoT平台无缝集成
 
 
 ## 新生命项目矩阵
