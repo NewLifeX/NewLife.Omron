@@ -13,10 +13,201 @@ Nuget：NewLife.Omron
 
 ## 特性
 - 纯.NET实现的FINS/TCP协议，无需第三方依赖
-- 支持多种数据区：DM、CIO、WR、HR、AR、EM等
+- 支持多种数据区：DM、CIO、WR、HR、AR、EM(多Bank)、TIM、CNT、IR、DR
+- 支持位级别和字级别的读写操作
 - 支持多种数据格式：ABCD、BADC、CDAB、DCBA
-- 支持读写操作：Int16/32、UInt16/32、Float、Double、Boolean、String、Byte[]
+- 类型化读写API：Int16/32/64、UInt16/32/64、Float、Double、Boolean、String、Byte[]
+- 存储区填充、多区域读取、存储区传送
+- CPU控制：运行/停止、状态读取、型号数据读取
+- 时钟读写、扫描周期读取
+- 错误清除、错误日志读取/清除
 - 基于NewLife.IoT标准库，与IoT平台无缝集成
+
+## 安装
+```bash
+dotnet add package NewLife.Omron
+```
+
+## 快速开始
+
+### 基础读写
+```csharp
+using NewLife.Omron.Protocols;
+
+// 创建客户端并连接
+var client = new FinsClient("192.168.1.10", 9600);
+client.Connect();
+
+// 读取DM区字数据
+var data = client.Read("D100", 10); // 读取D100开始的10个字
+
+// 写入数据
+client.Write("D200", new byte[] { 0x00, 0x0A, 0x00, 0x14 });
+
+// 关闭连接
+client.Close();
+```
+
+### 类型化读写
+```csharp
+var client = new FinsClient("192.168.1.10");
+client.Connect();
+
+// 读取各种类型
+short v16 = client.ReadInt16("D100");
+int v32 = client.ReadInt32("D200");
+float vf = client.ReadFloat("D300");
+double vd = client.ReadDouble("D400");
+string vs = client.ReadString("D500", 10);
+
+// 写入各种类型
+client.WriteInt16("D100", 1234);
+client.WriteInt32("D200", 123456);
+client.WriteFloat("D300", 3.14f);
+client.WriteDouble("D400", 3.141592653589793);
+client.WriteString("D500", "Hello");
+```
+
+### 位操作
+```csharp
+// 读取单个位
+bool bitValue = client.ReadBool("CIO100.5");
+
+// 写入单个位
+client.WriteBool("CIO100.5", true);
+
+// 批量读取位
+byte[] bits = client.ReadBit("CIO100.0", 16); // 读取16个位
+```
+
+### 存储区操作
+```csharp
+// 存储区填充（将D100-D149全部填充为0）
+client.Fill("D100", 50, 0x0000);
+
+// 多区域读取（一次读取多个不连续地址）
+byte[] multiData = client.MultipleRead(new[] { "D100", "D200", "CIO50" });
+
+// 存储区传送（将D100-D109复制到D200-D209）
+client.Transfer("D100", "D200", 10);
+```
+
+### CPU控制与状态
+```csharp
+// 读取CPU型号和版本
+var cpuData = client.ReadCpuUnitData();
+Console.WriteLine($"型号: {cpuData.Model}, 版本: {cpuData.Version}");
+
+// 读取CPU运行状态
+var status = client.ReadCpuUnitStatus();
+Console.WriteLine($"模式: {status.Mode}, 致命错误: {status.FatalError}");
+
+// CPU运行/停止
+client.PlcRun();   // 启动PLC
+client.PlcStop();  // 停止PLC
+
+// 读取扫描周期
+var (avg, max, min) = client.ReadCycleTime();
+Console.WriteLine($"扫描周期 平均: {avg * 0.1}ms, 最大: {max * 0.1}ms, 最小: {min * 0.1}ms");
+```
+
+### 时钟操作
+```csharp
+// 读取PLC时钟
+DateTime plcTime = client.ReadClock();
+Console.WriteLine($"PLC时钟: {plcTime}");
+
+// 设置PLC时钟
+client.WriteClock(DateTime.Now);
+```
+
+### 错误操作
+```csharp
+// 清除错误
+client.ClearError(0x0000);
+
+// 读取错误日志
+byte[] errorLog = client.ReadErrorLog(0, 10);
+
+// 清除错误日志
+client.ClearErrorLog();
+```
+
+### IoT驱动集成
+```csharp
+using NewLife.Omron.Drivers;
+
+var driver = new OmronDriver();
+var pm = new OmronParameter
+{
+    Address = "192.168.1.10:9600",
+    DA2 = 0,
+    DataFormat = "CDAB"
+};
+var node = driver.Open(null, pm);
+
+// 通过IoT标准接口读写
+var dic = driver.Read(node, points);
+driver.Write(node, point, 12345);
+
+driver.Close(node);
+```
+
+## 支持的存储区
+
+| 存储区 | 前缀 | 字代码 | 位代码 | 说明 |
+|--------|------|--------|--------|------|
+| CIO | CIO/C | 0xB0 | 0x30 | Core I/O 区 |
+| WR | WR/W | 0xB1 | 0x31 | Work 工作区 |
+| HR | HR/H | 0xB2 | 0x32 | Holding 保持区 |
+| AR | AR/A | 0xB3 | 0x33 | Auxiliary 辅助区 |
+| DM | DM/D | 0x82 | 0x02 | Data Memory 数据区 |
+| EM | EM/EM0: | 0xA0+ | 0x20+ | Extended Memory 扩展数据区(多Bank) |
+| TIM | TIM | 0x89 | 0x09 | 定时器当前值/完成标志 |
+| CNT | CNT | 0x89 | 0x09 | 计数器当前值/完成标志 |
+| IR | IR | 0xDC | - | 索引寄存器 |
+| DR | DR | 0xBC | - | 数据寄存器 |
+
+### 地址格式
+```
+{区域前缀}{地址}[.{位偏移}]
+
+D100        - DM区第100字
+CIO50.5     - CIO区第50字的第5位
+EM0:200     - EM Bank0第200字
+TIM5        - 定时器5的当前值
+```
+
+## 支持的FINS命令
+
+| 命令 | MRC:SRC | 说明 |
+|------|---------|------|
+| Memory Area Read | 01:01 | 存储区读取（字/位） |
+| Memory Area Write | 01:02 | 存储区写入（字/位） |
+| Memory Area Fill | 01:03 | 存储区填充 |
+| Multiple Memory Area Read | 01:04 | 多区域读取 |
+| Memory Area Transfer | 01:05 | 存储区传送 |
+| Run | 04:01 | CPU运行 |
+| Stop | 04:02 | CPU停止 |
+| Controller Data Read | 05:01 | CPU型号/版本读取 |
+| Controller Status Read | 06:01 | CPU运行状态读取 |
+| Cycle Time Read | 06:20 | 扫描周期读取 |
+| Clock Read | 07:01 | PLC时钟读取 |
+| Clock Write | 07:02 | PLC时钟写入 |
+| Error Clear | 21:01 | 错误清除 |
+| Error Log Read | 21:02 | 错误日志读取 |
+| Error Log Clear | 21:03 | 错误日志清除 |
+
+## 数据格式
+
+欧姆龙PLC支持四种双字(32位)字节序：
+
+| 格式 | 字节顺序 | 说明 |
+|------|---------|------|
+| ABCD | 3-2-1-0 | 大端序 |
+| BADC | 2-3-0-1 | 字内交换 |
+| CDAB | 1-0-3-2 | 双字交换（默认） |
+| DCBA | 0-1-2-3 | 小端序 |
 
 
 ## 新生命项目矩阵

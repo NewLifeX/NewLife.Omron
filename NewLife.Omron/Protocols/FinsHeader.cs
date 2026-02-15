@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 
 namespace NewLife.Omron.Protocols;
 
-/// <summary>
-/// FINS协议头部
-/// </summary>
+/// <summary>FINS协议头部</summary>
+/// <remarks>
+/// FINS帧头固定10字节，包含路由信息和服务标识。
+/// </remarks>
 public class FinsHeader
 {
     /// <summary>信息控制字段 Information Control Field</summary>
@@ -37,20 +38,19 @@ public class FinsHeader
     /// <summary>服务ID Service ID</summary>
     public Byte SID { get; set; } = 0x00;
 
-    /// <summary>
-    /// 转换为字节数组
-    /// </summary>
+    /// <summary>转换为字节数组</summary>
     public Byte[] ToBytes()
     {
-        return new[]
-        {
+        return
+        [
             ICF, RSV, GCT, DNA, DA1, DA2, SNA, SA1, SA2, SID
-        };
+        ];
     }
 
-    /// <summary>
-    /// 从字节数组解析
-    /// </summary>
+    /// <summary>从字节数组解析</summary>
+    /// <param name="data">字节数组</param>
+    /// <param name="offset">起始偏移</param>
+    /// <returns>解析后的头部对象</returns>
     public static FinsHeader Parse(Byte[] data, Int32 offset = 0)
     {
         if (data == null || data.Length < offset + 10)
@@ -70,4 +70,7 @@ public class FinsHeader
             SID = data[offset + 9]
         };
     }
+
+    /// <summary>返回描述字符串</summary>
+    public override String ToString() => $"DA={DNA}.{DA1}.{DA2} SA={SNA}.{SA1}.{SA2} SID={SID}";
 }

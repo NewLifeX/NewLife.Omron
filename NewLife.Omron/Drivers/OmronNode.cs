@@ -1,8 +1,9 @@
-﻿namespace NewLife.IoT.Drivers;
+﻿using NewLife.IoT;
+using NewLife.IoT.Drivers;
 
-/// <summary>
-/// 节点
-/// </summary>
+namespace NewLife.Omron.Drivers;
+
+/// <summary>欧姆龙PLC节点</summary>
 public class OmronNode : INode
 {
     /// <summary>主机地址</summary>
