@@ -1,4 +1,4 @@
-# NewLife.Omron - 欧姆龙PLC
+# NewLife.Omron - 欧姆龙 PLC 通信协议库
 
 ![GitHub top language](https://img.shields.io/github/languages/top/newlifex/NewLife.Omron?logo=github)
 ![GitHub License](https://img.shields.io/github/license/newlifex/NewLife.Omron?logo=github)
@@ -6,29 +6,59 @@
 ![Nuget](https://img.shields.io/nuget/v/NewLife.Omron?logo=nuget)
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/NewLife.Omron?label=dev%20nuget&logo=nuget)
 
-欧姆龙PLC协议库，纯.NET独立实现 FINS/TCP、FINS/UDP、HostLink 三种协议，支持同步+异步API，无第三方依赖。
+NewLife.Omron 是一个纯 .NET 实现的欧姆龙 PLC 通信协议库，完整支持 **FINS/TCP**、**FINS/UDP**、**HostLink** 三种协议，提供同步+异步完整 API，零第三方依赖，适用于工业自动化、数据采集、设备监控等场景。
 
-源码： https://github.com/NewLifeX/NewLife.Omron  
-Nuget：NewLife.Omron  
+**源码**：https://github.com/NewLifeX/NewLife.Omron  
+**NuGet**：NewLife.Omron  
+**文档**：https://newlifex.com/iot
 
-## 特性
-- **三种协议**：FINS/TCP、FINS/UDP、HostLink（C-mode 串口/TCP）
-- **完整异步API**：全部读写操作均提供 Async 版本，ConfigureAwait(false)
-- **丰富存储区**：DM、CIO、WR、HR、AR、EM(多Bank)、TIM、CNT、IR、DR
-- **位级+字级读写**：ReadBit/WriteBit/ReadBool/WriteBool
-- **类型化API**：Int16/32/64、UInt16/32/64、Float、Double、Boolean、String、Byte[]
-- **四种字节序**：ABCD(大端)、BADC(字内交换)、CDAB(欧姆龙默认)、DCBA(小端)
-- **存储区操作**：填充(Fill)、多区域读取(MultipleRead)、传送(Transfer)、批量读取(BatchRead)
-- **CPU控制**：运行/停止、状态读取、型号版本读取、扫描周期
-- **设备管理**：时钟读写、错误清除/日志、参数区/程序区读写、访问权控制
-- **自动重连**：连接断开自动重连，退避重试（1s、2s、3s）
-- **模拟服务器**：FinsServer 用于开发调试和单元测试
-- **IoT平台集成**：基于NewLife.IoT标准库，实现DriverBase驱动接口
+---
 
-## 安装
+## 🌟 核心特性
+
+### 协议支持
+- ✅ **FINS/TCP**：标准以太网协议，自动握手获取节点地址
+- ✅ **FINS/UDP**：无连接快速通信，适合高频轮询
+- ✅ **HostLink**：C-mode 协议，支持串口（RS-232C/422/485）和 TCP（串口服务器）
+
+### 功能完整
+- ✅ **27 种 FINS 命令**：存储区读写、位操作、CPU 控制、设备信息、时钟、错误管理、参数/程序区操作、访问权控制
+- ✅ **丰富存储区**：DM、CIO、WR、HR、AR、EM（多 Bank）、TIM、CNT、IR、DR 全覆盖
+- ✅ **类型化 API**：Int16/32/64、UInt16/32/64、Single、Double、Boolean、String、Byte[] 一行代码读写
+- ✅ **四种字节序**：ABCD（大端）、BADC（字内交换）、CDAB（欧姆龙默认）、DCBA（小端）自由切换
+
+### 高级功能
+- ✅ **批量读取优化**：自动合并相邻地址，单次通信减少 50%+
+- ✅ **自动重连**：网络断开自动重连，退避重试（1s→2s→3s）
+- ✅ **模拟服务器**：FinsServer 用于开发调试和单元测试，无需真实 PLC
+- ✅ **异步编程**：全部 API 提供 Async 版本，ConfigureAwait(false) 避免死锁
+
+### 工程品质
+- ✅ **零依赖**：协议层仅依赖 .NET BCL，可独立使用
+- ✅ **多框架**：支持 net45/net461/netstandard2.0/netstandard2.1，兼容旧项目
+- ✅ **IoT 集成**：实现 NewLife.IoT 驱动接口，对接星尘、AntJob 等平台
+- ✅ **完整测试**：52 个单元测试 + 25 个集成测试，覆盖全部核心功能
+
+---
+
+## 📦 安装
+
+### NuGet 包管理器
+```powershell
+Install-Package NewLife.Omron
+```
+
+### .NET CLI
 ```bash
 dotnet add package NewLife.Omron
 ```
+
+### PackageReference
+```xml
+<PackageReference Include="NewLife.Omron" Version="1.1.*" />
+```
+
+---
 
 ## 快速开始
 

@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.MD = Readme.MD
 		.github\workflows\test.yml = .github\workflows\test.yml
 		Doc\功能分析报告.md = Doc\功能分析报告.md
+		Doc\架构设计.md = Doc\架构设计.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewLife.Omron", "NewLife.Omron\NewLife.Omron.csproj", "{2B4793CE-80F1-4D8C-8287-ECE1E031CE41}"
