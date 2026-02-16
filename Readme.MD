@@ -6,22 +6,24 @@
 ![Nuget](https://img.shields.io/nuget/v/NewLife.Omron?logo=nuget)
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/NewLife.Omron?label=dev%20nuget&logo=nuget)
 
-欧姆龙PLC协议，基于NewLife风格独立实现FINS/TCP二进制协议，无第三方依赖。
+欧姆龙PLC协议库，纯.NET独立实现 FINS/TCP、FINS/UDP、HostLink 三种协议，支持同步+异步API，无第三方依赖。
 
 源码： https://github.com/NewLifeX/NewLife.Omron  
 Nuget：NewLife.Omron  
 
 ## 特性
-- 纯.NET实现的FINS/TCP协议，无需第三方依赖
-- 支持多种数据区：DM、CIO、WR、HR、AR、EM(多Bank)、TIM、CNT、IR、DR
-- 支持位级别和字级别的读写操作
-- 支持多种数据格式：ABCD、BADC、CDAB、DCBA
-- 类型化读写API：Int16/32/64、UInt16/32/64、Float、Double、Boolean、String、Byte[]
-- 存储区填充、多区域读取、存储区传送
-- CPU控制：运行/停止、状态读取、型号数据读取
-- 时钟读写、扫描周期读取
-- 错误清除、错误日志读取/清除
-- 基于NewLife.IoT标准库，与IoT平台无缝集成
+- **三种协议**：FINS/TCP、FINS/UDP、HostLink（C-mode 串口/TCP）
+- **完整异步API**：全部读写操作均提供 Async 版本，ConfigureAwait(false)
+- **丰富存储区**：DM、CIO、WR、HR、AR、EM(多Bank)、TIM、CNT、IR、DR
+- **位级+字级读写**：ReadBit/WriteBit/ReadBool/WriteBool
+- **类型化API**：Int16/32/64、UInt16/32/64、Float、Double、Boolean、String、Byte[]
+- **四种字节序**：ABCD(大端)、BADC(字内交换)、CDAB(欧姆龙默认)、DCBA(小端)
+- **存储区操作**：填充(Fill)、多区域读取(MultipleRead)、传送(Transfer)、批量读取(BatchRead)
+- **CPU控制**：运行/停止、状态读取、型号版本读取、扫描周期
+- **设备管理**：时钟读写、错误清除/日志、参数区/程序区读写、访问权控制
+- **自动重连**：连接断开自动重连，退避重试（1s、2s、3s）
+- **模拟服务器**：FinsServer 用于开发调试和单元测试
+- **IoT平台集成**：基于NewLife.IoT标准库，实现DriverBase驱动接口
 
 ## 安装
 ```bash
@@ -153,6 +155,91 @@ driver.Write(node, point, 12345);
 driver.Close(node);
 ```
 
+### FINS/UDP 通信
+```csharp
+using NewLife.Omron.Protocols;
+
+// FINS/UDP 无需握手，直接通信
+var udp = new FinsUdpClient("192.168.1.10", 9600);
+udp.Open();
+
+// 读写方式与 FinsClient 一致
+short val = udp.ReadInt16("D100");
+udp.WriteInt32("D200", 12345);
+
+udp.Close();
+```
+
+### HostLink 串口/TCP 通信
+```csharp
+using NewLife.Omron.Protocols;
+
+// 方式一：串口
+var serial = new SerialPort("COM1", 9600, Parity.Even, 7, StopBits.Two);
+serial.Open();
+using var client1 = new HostLinkClient(serial.BaseStream);
+
+// 方式二：TCP（串口服务器）
+using var client2 = new HostLinkClient("192.168.1.100", 4001);
+
+// 读写方式与 FinsClient 一致
+var data = client2.Read("D100", 10);
+client2.WriteInt32("D200", 12345);
+
+// 通过 HostLink 发送 FINS 命令
+var finsMsg = FinsMessage.BuildCommandRequest(FinsCommand.ControllerDataRead);
+var resp = client2.SendFinsCommand(finsMsg);
+```
+
+### 异步 API
+```csharp
+using NewLife.Omron.Protocols;
+
+var client = new FinsClient("192.168.1.10");
+await client.ConnectAsync();
+
+// 所有操作均有异步版本
+var value = await client.ReadInt32Async("D100");
+await client.WriteFloatAsync("D200", 3.14f);
+await client.WriteBoolAsync("CIO100.5", true);
+
+// CPU 操作异步
+var cpuData = await client.ReadCpuUnitDataAsync();
+var status = await client.ReadCpuUnitStatusAsync();
+```
+
+### 批量读取
+```csharp
+// 自动合并同区域相邻地址，减少通信次数
+var results = client.BatchRead(
+    new[] { "D100", "D101", "D102", "D200", "D201" },
+    new ushort[] { 1, 1, 1, 1, 1 });
+
+// results[0] ~ results[4] 为各地址的字节数组
+```
+
+### FinsServer 模拟测试
+```csharp
+using NewLife.Omron.Protocols;
+
+// 创建模拟服务器（随机端口）
+using var server = new FinsServer();
+server.CpuModel = "CJ2M-CPU31";
+server.Start();
+
+// 服务端预写入数据
+server.WriteMemory(0x82, 100, new byte[] { 0x00, 0x0A });
+
+// 客户端连接测试
+using var client = new FinsClient("127.0.0.1", server.Port);
+client.Connect();
+
+short val = client.ReadInt16("D100"); // 读取服务端预设值
+client.WriteInt32("D200", 12345);     // 写入并在服务端验证
+
+var cpu = client.ReadCpuUnitData();   // 返回 "CJ2M-CPU31"
+```
+
 ## 支持的存储区
 
 | 存储区 | 前缀 | 字代码 | 位代码 | 说明 |
@@ -187,13 +274,25 @@ TIM5        - 定时器5的当前值
 | Memory Area Fill | 01:03 | 存储区填充 |
 | Multiple Memory Area Read | 01:04 | 多区域读取 |
 | Memory Area Transfer | 01:05 | 存储区传送 |
-| Run | 04:01 | CPU运行 |
+| Parameter Area Read | 02:01 | 参数区读取 |
+| Parameter Area Write | 02:02 | 参数区写入 |
+| Parameter Area Clear | 02:03 | 参数区清除 |
+| Program Area Read | 03:06 | 程序区读取 |
+| Program Area Write | 03:07 | 程序区写入 |
+| Program Area Clear | 03:08 | 程序区清除 |
+| Run | 04:01 | CPU运行（RUN/MONITOR模式） |
 | Stop | 04:02 | CPU停止 |
 | Controller Data Read | 05:01 | CPU型号/版本读取 |
+| Connection Data Read | 05:02 | 连接数据读取 |
 | Controller Status Read | 06:01 | CPU运行状态读取 |
+| Network Status Read | 06:06 | 网络状态读取 |
 | Cycle Time Read | 06:20 | 扫描周期读取 |
 | Clock Read | 07:01 | PLC时钟读取 |
 | Clock Write | 07:02 | PLC时钟写入 |
+| Message Read | 09:20 | 消息读取 |
+| Access Right Acquire | 0C:01 | 获取访问权 |
+| Access Right Forced Acquire | 0C:02 | 强制获取访问权 |
+| Access Right Release | 0C:03 | 释放访问权 |
 | Error Clear | 21:01 | 错误清除 |
 | Error Log Read | 21:02 | 错误日志读取 |
 | Error Log Clear | 21:03 | 错误日志清除 |
