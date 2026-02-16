@@ -44,7 +44,7 @@ public partial class FinsClient
             // 执行异步FINS握手
             await PerformHandshakeAsync().ConfigureAwait(false);
 
-            Transform.DataFormat = DataFormat;
+            Transform.ByteOrder = ByteOrder;
             XTrace.WriteLine($"FINS连接成功: {IpAddress}:{Port}, 源节点地址: {SourceNodeAddress}");
         }
         catch (Exception ex)

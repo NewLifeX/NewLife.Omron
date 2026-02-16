@@ -31,7 +31,7 @@ public class OmronDriver : DriverBase
     {
         Address = "127.0.0.1:9600",
         DA2 = 0,
-        DataFormat = "CDAB",
+        ByteOrder = "CDAB",
     };
 
     /// <summary>从点位中解析地址</summary>
@@ -85,10 +85,10 @@ public class OmronDriver : DriverBase
                         DA2 = pm.DA2,
                     };
 
-                    // 设置数据格式
-                    if (!pm.DataFormat.IsNullOrEmpty() && Enum.TryParse<DataFormat>(pm.DataFormat, out var format))
+                    // 设置字节序
+                    if (!pm.ByteOrder.IsNullOrEmpty() && Enum.TryParse<ByteOrder>(pm.ByteOrder, out var byteOrder))
                     {
-                        client.DataFormat = format;
+                        client.ByteOrder = byteOrder;
                     }
 
                     // 连接服务器

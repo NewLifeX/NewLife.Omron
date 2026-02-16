@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading;
+using NewLife.IoT.ThingModels;
 using NewLife.Log;
 
 namespace NewLife.Omron.Protocols;
@@ -40,8 +41,12 @@ public partial class HostLinkClient : IDisposable
     /// <summary>接收超时(毫秒)</summary>
     public Int32 ReceiveTimeOut { get; set; } = 5000;
 
-    /// <summary>数据转换格式</summary>
-    public DataFormat DataFormat { get; set; } = DataFormat.CDAB;
+    /// <summary>字节序</summary>
+    public ByteOrder ByteOrder
+    {
+        get => Transform.ByteOrder;
+        set => Transform.ByteOrder = value;
+    }
 
     /// <summary>字节转换器</summary>
     public ByteTransform Transform { get; set; }
@@ -60,7 +65,7 @@ public partial class HostLinkClient : IDisposable
     {
         _stream = stream ?? throw new ArgumentNullException(nameof(stream));
         _ownStream = ownStream;
-        Transform = new ByteTransform { DataFormat = DataFormat };
+        Transform = new ByteTransform { ByteOrder = ByteOrder.CDAB };
     }
 
     /// <summary>通过TCP连接实例化HostLink客户端（适用于串口服务器）</summary>
@@ -72,7 +77,7 @@ public partial class HostLinkClient : IDisposable
         tcp.Connect(ipAddress, port);
         _stream = tcp.GetStream();
         _ownStream = true;
-        Transform = new ByteTransform { DataFormat = DataFormat };
+        Transform = new ByteTransform { ByteOrder = ByteOrder.CDAB };
 
         XTrace.WriteLine($"HostLink/TCP连接成功: {ipAddress}:{port}");
     }
@@ -190,6 +195,24 @@ public partial class HostLinkClient : IDisposable
         return Transform.TransUInt32(data, 0);
     }
 
+    /// <summary>读取Int64值</summary>
+    /// <param name="address">地址</param>
+    /// <returns>Int64值</returns>
+    public Int64 ReadInt64(String address)
+    {
+        var data = Read(address, 4);
+        return Transform.TransInt64(data, 0);
+    }
+
+    /// <summary>读取UInt64值</summary>
+    /// <param name="address">地址</param>
+    /// <returns>UInt64值</returns>
+    public UInt64 ReadUInt64(String address)
+    {
+        var data = Read(address, 4);
+        return Transform.TransUInt64(data, 0);
+    }
+
     /// <summary>读取Float值</summary>
     /// <param name="address">地址</param>
     /// <returns>Single值</returns>
@@ -237,6 +260,16 @@ public partial class HostLinkClient : IDisposable
     /// <param name="address">地址</param>
     /// <param name="value">值</param>
     public void WriteUInt32(String address, UInt32 value) => Write(address, Transform.TransByte(value));
+
+    /// <summary>写入Int64值</summary>
+    /// <param name="address">地址</param>
+    /// <param name="value">值</param>
+    public void WriteInt64(String address, Int64 value) => Write(address, Transform.TransByte(value));
+
+    /// <summary>写入UInt64值</summary>
+    /// <param name="address">地址</param>
+    /// <param name="value">值</param>
+    public void WriteUInt64(String address, UInt64 value) => Write(address, Transform.TransByte(value));
 
     /// <summary>写入Float值</summary>
     /// <param name="address">地址</param>

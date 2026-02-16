@@ -167,6 +167,24 @@ public partial class FinsUdpClient
         return Transform.TransUInt32(data, 0);
     }
 
+    /// <summary>异步读取Int64值</summary>
+    /// <param name="address">地址</param>
+    /// <returns>Int64值</returns>
+    public async Task<Int64> ReadInt64Async(String address)
+    {
+        var data = await ReadAsync(address, 4).ConfigureAwait(false);
+        return Transform.TransInt64(data, 0);
+    }
+
+    /// <summary>异步读取UInt64值</summary>
+    /// <param name="address">地址</param>
+    /// <returns>UInt64值</returns>
+    public async Task<UInt64> ReadUInt64Async(String address)
+    {
+        var data = await ReadAsync(address, 4).ConfigureAwait(false);
+        return Transform.TransUInt64(data, 0);
+    }
+
     /// <summary>异步读取Float值</summary>
     /// <param name="address">地址</param>
     /// <returns>Single值</returns>
@@ -214,6 +232,16 @@ public partial class FinsUdpClient
     /// <param name="address">地址</param>
     /// <param name="value">值</param>
     public Task WriteUInt32Async(String address, UInt32 value) => WriteAsync(address, Transform.TransByte(value));
+
+    /// <summary>异步写入Int64值</summary>
+    /// <param name="address">地址</param>
+    /// <param name="value">值</param>
+    public Task WriteInt64Async(String address, Int64 value) => WriteAsync(address, Transform.TransByte(value));
+
+    /// <summary>异步写入UInt64值</summary>
+    /// <param name="address">地址</param>
+    /// <param name="value">值</param>
+    public Task WriteUInt64Async(String address, UInt64 value) => WriteAsync(address, Transform.TransByte(value));
 
     /// <summary>异步写入Float值</summary>
     /// <param name="address">地址</param>

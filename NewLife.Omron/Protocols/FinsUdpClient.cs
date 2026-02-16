@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using NewLife.IoT.ThingModels;
 using NewLife.Log;
 
 namespace NewLife.Omron.Protocols;
@@ -34,8 +35,12 @@ public partial class FinsUdpClient : IDisposable
     /// <summary>目标单元地址</summary>
     public Byte DA2 { get; set; }
 
-    /// <summary>数据转换格式</summary>
-    public DataFormat DataFormat { get; set; } = DataFormat.CDAB;
+    /// <summary>字节序</summary>
+    public ByteOrder ByteOrder
+    {
+        get => Transform.ByteOrder;
+        set => Transform.ByteOrder = value;
+    }
 
     /// <summary>源节点地址（需手动指定，通常为IP地址最后一段）</summary>
     public Byte SourceNodeAddress { get; set; }
@@ -56,7 +61,7 @@ public partial class FinsUdpClient : IDisposable
     /// <summary>实例化FINS/UDP客户端</summary>
     public FinsUdpClient()
     {
-        Transform = new ByteTransform { DataFormat = DataFormat };
+        Transform = new ByteTransform { ByteOrder = ByteOrder.CDAB };
     }
 
     /// <summary>实例化FINS/UDP客户端</summary>
@@ -86,8 +91,8 @@ public partial class FinsUdpClient : IDisposable
         _client.Client.ReceiveTimeout = ReceiveTimeOut;
         _client.Connect(IpAddress, Port);
 
-        // 同步字节转换器的数据格式
-        Transform.DataFormat = DataFormat;
+        // 同步字节转换器的字节序
+        Transform.ByteOrder = ByteOrder;
 
         // 从本地端口推导源节点地址（如未手动指定）
         if (SourceNodeAddress == 0)
@@ -256,6 +261,24 @@ public partial class FinsUdpClient : IDisposable
         return Transform.TransUInt32(data, 0);
     }
 
+    /// <summary>读取Int64值</summary>
+    /// <param name="address">地址</param>
+    /// <returns>Int64值</returns>
+    public Int64 ReadInt64(String address)
+    {
+        var data = Read(address, 4);
+        return Transform.TransInt64(data, 0);
+    }
+
+    /// <summary>读取UInt64值</summary>
+    /// <param name="address">地址</param>
+    /// <returns>UInt64值</returns>
+    public UInt64 ReadUInt64(String address)
+    {
+        var data = Read(address, 4);
+        return Transform.TransUInt64(data, 0);
+    }
+
     /// <summary>读取Float值</summary>
     /// <param name="address">地址</param>
     /// <returns>Single值</returns>
@@ -303,6 +326,16 @@ public partial class FinsUdpClient : IDisposable
     /// <param name="address">地址</param>
     /// <param name="value">值</param>
     public void WriteUInt32(String address, UInt32 value) => Write(address, Transform.TransByte(value));
+
+    /// <summary>写入Int64值</summary>
+    /// <param name="address">地址</param>
+    /// <param name="value">值</param>
+    public void WriteInt64(String address, Int64 value) => Write(address, Transform.TransByte(value));
+
+    /// <summary>写入UInt64值</summary>
+    /// <param name="address">地址</param>
+    /// <param name="value">值</param>
+    public void WriteUInt64(String address, UInt64 value) => Write(address, Transform.TransByte(value));
 
     /// <summary>写入Float值</summary>
     /// <param name="address">地址</param>

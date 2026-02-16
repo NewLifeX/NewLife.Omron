@@ -14,7 +14,7 @@ public class OmronParameter : IDriverParameter
     [Description("PLC的单元号地址。默认0")]
     public Byte DA2 { get; set; }
 
-    /// <summary>数据格式。ABCD/BADC/CDAB/DCBA</summary>
-    [Description("数据格式。ABCD/BADC/CDAB/DCBA")]
-    public String DataFormat { get; set; }
+    /// <summary>字节序。ABCD/BADC/CDAB/DCBA</summary>
+    [Description("字节序。ABCD/BADC/CDAB/DCBA")]
+    public String ByteOrder { get; set; }
 }

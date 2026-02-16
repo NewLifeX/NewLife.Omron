@@ -1,39 +1,40 @@
+ï»¿using NewLife.IoT.ThingModels;
 using NewLife.Omron.Protocols;
 using Xunit;
 
 namespace XUnitTest.Protocols;
 
-/// <summary>ByteTransform×Ö½Ú×ª»»²âÊÔ</summary>
+/// <summary>ByteTransformå­—èŠ‚è½¬æ¢æµ‹è¯•</summary>
 public class ByteTransformTests
 {
     #region Int16
 
     [Theory]
-    [InlineData(DataFormat.CDAB, new Byte[] { 0x00, 0x0A }, 10)]
-    [InlineData(DataFormat.ABCD, new Byte[] { 0x00, 0x0A }, 10)]
-    [InlineData(DataFormat.DCBA, new Byte[] { 0x0A, 0x00 }, 10)]
-    [InlineData(DataFormat.BADC, new Byte[] { 0x0A, 0x00 }, 10)]
-    public void TransInt16(DataFormat format, Byte[] data, Int16 expected)
+    [InlineData(ByteOrder.CDAB, new Byte[] { 0x00, 0x0A }, 10)]
+    [InlineData(ByteOrder.ABCD, new Byte[] { 0x00, 0x0A }, 10)]
+    [InlineData(ByteOrder.DCBA, new Byte[] { 0x0A, 0x00 }, 10)]
+    [InlineData(ByteOrder.BADC, new Byte[] { 0x0A, 0x00 }, 10)]
+    public void TransInt16(ByteOrder byteOrder, Byte[] data, Int16 expected)
     {
-        var bt = new ByteTransform { DataFormat = format };
+        var bt = new ByteTransform { ByteOrder = byteOrder };
         Assert.Equal(expected, bt.TransInt16(data, 0));
     }
 
     [Theory]
-    [InlineData(DataFormat.CDAB, 10, new Byte[] { 0x00, 0x0A })]
-    [InlineData(DataFormat.DCBA, 10, new Byte[] { 0x0A, 0x00 })]
-    public void TransByteInt16(DataFormat format, Int16 value, Byte[] expected)
+    [InlineData(ByteOrder.CDAB, 10, new Byte[] { 0x00, 0x0A })]
+    [InlineData(ByteOrder.DCBA, 10, new Byte[] { 0x0A, 0x00 })]
+    public void TransByteInt16(ByteOrder byteOrder, Int16 value, Byte[] expected)
     {
-        var bt = new ByteTransform { DataFormat = format };
+        var bt = new ByteTransform { ByteOrder = byteOrder };
         Assert.Equal(expected, bt.TransByte(value));
     }
 
     [Fact]
     public void Int16RoundTrip()
     {
-        foreach (var format in Enum.GetValues<DataFormat>())
+        foreach (var byteOrder in Enum.GetValues<ByteOrder>())
         {
-            var bt = new ByteTransform { DataFormat = format };
+            var bt = new ByteTransform { ByteOrder = byteOrder };
             Int16 value = 12345;
             var bytes = bt.TransByte(value);
             var result = bt.TransInt16(bytes, 0);
@@ -48,9 +49,9 @@ public class ByteTransformTests
     [Fact]
     public void UInt16RoundTrip()
     {
-        foreach (var format in Enum.GetValues<DataFormat>())
+        foreach (var byteOrder in Enum.GetValues<ByteOrder>())
         {
-            var bt = new ByteTransform { DataFormat = format };
+            var bt = new ByteTransform { ByteOrder = byteOrder };
             UInt16 value = 54321;
             var bytes = bt.TransByte(value);
             var result = bt.TransUInt16(bytes, 0);
@@ -63,22 +64,22 @@ public class ByteTransformTests
     #region Int32
 
     [Theory]
-    [InlineData(DataFormat.ABCD, new Byte[] { 0x00, 0x01, 0x00, 0x00 }, 65536)]
-    [InlineData(DataFormat.DCBA, new Byte[] { 0x00, 0x00, 0x01, 0x00 }, 65536)]
-    [InlineData(DataFormat.CDAB, new Byte[] { 0x00, 0x00, 0x00, 0x01 }, 65536)]
-    [InlineData(DataFormat.BADC, new Byte[] { 0x01, 0x00, 0x00, 0x00 }, 65536)]
-    public void TransInt32(DataFormat format, Byte[] data, Int32 expected)
+    [InlineData(ByteOrder.ABCD, new Byte[] { 0x00, 0x01, 0x00, 0x00 }, 65536)]
+    [InlineData(ByteOrder.DCBA, new Byte[] { 0x00, 0x00, 0x01, 0x00 }, 65536)]
+    [InlineData(ByteOrder.CDAB, new Byte[] { 0x00, 0x00, 0x00, 0x01 }, 65536)]
+    [InlineData(ByteOrder.BADC, new Byte[] { 0x01, 0x00, 0x00, 0x00 }, 65536)]
+    public void TransInt32(ByteOrder byteOrder, Byte[] data, Int32 expected)
     {
-        var bt = new ByteTransform { DataFormat = format };
+        var bt = new ByteTransform { ByteOrder = byteOrder };
         Assert.Equal(expected, bt.TransInt32(data, 0));
     }
 
     [Fact]
     public void Int32RoundTrip()
     {
-        foreach (var format in Enum.GetValues<DataFormat>())
+        foreach (var byteOrder in Enum.GetValues<ByteOrder>())
         {
-            var bt = new ByteTransform { DataFormat = format };
+            var bt = new ByteTransform { ByteOrder = byteOrder };
             var value = 123456789;
             var bytes = bt.TransByte(value);
             var result = bt.TransInt32(bytes, 0);
@@ -93,9 +94,9 @@ public class ByteTransformTests
     [Fact]
     public void UInt32RoundTrip()
     {
-        foreach (var format in Enum.GetValues<DataFormat>())
+        foreach (var byteOrder in Enum.GetValues<ByteOrder>())
         {
-            var bt = new ByteTransform { DataFormat = format };
+            var bt = new ByteTransform { ByteOrder = byteOrder };
             UInt32 value = 3000000000;
             var bytes = bt.TransByte(value);
             var result = bt.TransUInt32(bytes, 0);
@@ -110,9 +111,9 @@ public class ByteTransformTests
     [Fact]
     public void Int64RoundTrip()
     {
-        foreach (var format in Enum.GetValues<DataFormat>())
+        foreach (var byteOrder in Enum.GetValues<ByteOrder>())
         {
-            var bt = new ByteTransform { DataFormat = format };
+            var bt = new ByteTransform { ByteOrder = byteOrder };
             var value = 1234567890123456789L;
             var bytes = bt.TransByte(value);
             Assert.Equal(8, bytes.Length);
@@ -128,9 +129,9 @@ public class ByteTransformTests
     [Fact]
     public void UInt64RoundTrip()
     {
-        foreach (var format in Enum.GetValues<DataFormat>())
+        foreach (var byteOrder in Enum.GetValues<ByteOrder>())
         {
-            var bt = new ByteTransform { DataFormat = format };
+            var bt = new ByteTransform { ByteOrder = byteOrder };
             UInt64 value = 18000000000000000000;
             var bytes = bt.TransByte(value);
             Assert.Equal(8, bytes.Length);
@@ -146,9 +147,9 @@ public class ByteTransformTests
     [Fact]
     public void SingleRoundTrip()
     {
-        foreach (var format in Enum.GetValues<DataFormat>())
+        foreach (var byteOrder in Enum.GetValues<ByteOrder>())
         {
-            var bt = new ByteTransform { DataFormat = format };
+            var bt = new ByteTransform { ByteOrder = byteOrder };
             var value = 3.14f;
             var bytes = bt.TransByte(value);
             Assert.Equal(4, bytes.Length);
@@ -164,9 +165,9 @@ public class ByteTransformTests
     [Fact]
     public void DoubleRoundTrip()
     {
-        foreach (var format in Enum.GetValues<DataFormat>())
+        foreach (var byteOrder in Enum.GetValues<ByteOrder>())
         {
-            var bt = new ByteTransform { DataFormat = format };
+            var bt = new ByteTransform { ByteOrder = byteOrder };
             var value = 3.141592653589793;
             var bytes = bt.TransByte(value);
             Assert.Equal(8, bytes.Length);
@@ -198,13 +199,13 @@ public class ByteTransformTests
     {
         var bt = new ByteTransform();
 
-        // Ğ´Èë
+        // å†™å…¥
         var bytes = bt.TransByte("AB");
         Assert.Equal(2, bytes.Length);
         Assert.Equal((Byte)'A', bytes[0]);
         Assert.Equal((Byte)'B', bytes[1]);
 
-        // ¶ÁÈ¡
+        // è¯»å–
         var str = bt.TransString(bytes, 0, bytes.Length);
         Assert.Equal("AB", str);
     }
@@ -214,7 +215,7 @@ public class ByteTransformTests
     {
         var bt = new ByteTransform();
 
-        // ÆæÊı³¤¶ÈÓ¦²¹Áã
+        // å¥‡æ•°é•¿åº¦åº”è¡¥é›¶
         var bytes = bt.TransByte("ABC");
         Assert.Equal(4, bytes.Length);
         Assert.Equal(0x00, bytes[3]);
@@ -239,9 +240,9 @@ public class ByteTransformTests
 
     #endregion
 
-    #region ±ß½çÇé¿ö
+    #region è¾¹ç•Œæƒ…å†µ
 
-    [Fact(DisplayName = "Êı¾İ²»×ãÓ¦Å×³öÒì³£")]
+    [Fact(DisplayName = "æ•°æ®ä¸è¶³åº”æŠ›å‡ºå¼‚å¸¸")]
     public void InsufficientDataShouldThrow()
     {
         var bt = new ByteTransform();
@@ -258,7 +259,7 @@ public class ByteTransformTests
         Assert.Throws<ArgumentException>(() => bt.TransString(new Byte[2], 0, 4));
     }
 
-    [Fact(DisplayName = "NullÊı¾İÓ¦Å×³öÒì³£")]
+    [Fact(DisplayName = "Nullæ•°æ®åº”æŠ›å‡ºå¼‚å¸¸")]
     public void NullDataShouldThrow()
     {
         var bt = new ByteTransform();
@@ -269,17 +270,17 @@ public class ByteTransformTests
         Assert.Throws<ArgumentException>(() => bt.TransDouble(null, 0));
     }
 
-    [Fact(DisplayName = "´øÆ«ÒÆ¶ÁÈ¡")]
+    [Fact(DisplayName = "å¸¦åç§»è¯»å–")]
     public void ReadWithOffset()
     {
-        var bt = new ByteTransform { DataFormat = DataFormat.CDAB };
+        var bt = new ByteTransform { ByteOrder = ByteOrder.CDAB };
         var data = new Byte[] { 0xFF, 0xFF, 0x00, 0x0A };
 
         var value = bt.TransInt16(data, 2);
         Assert.Equal(10, value);
     }
 
-    [Fact(DisplayName = "ÌØÊâÖµÍù·µ£ºÁãÖµ")]
+    [Fact(DisplayName = "ç‰¹æ®Šå€¼å¾€è¿”ï¼šé›¶å€¼")]
     public void ZeroValueRoundTrip()
     {
         var bt = new ByteTransform();
@@ -289,7 +290,7 @@ public class ByteTransformTests
         Assert.Equal(0.0, bt.TransDouble(bt.TransByte(0.0), 0));
     }
 
-    [Fact(DisplayName = "ÌØÊâÖµÍù·µ£º¸ºÖµ")]
+    [Fact(DisplayName = "ç‰¹æ®Šå€¼å¾€è¿”ï¼šè´Ÿå€¼")]
     public void NegativeValueRoundTrip()
     {
         var bt = new ByteTransform();
@@ -299,12 +300,12 @@ public class ByteTransformTests
         Assert.Equal(-1.23456789, bt.TransDouble(bt.TransByte(-1.23456789), 0));
     }
 
-    [Fact(DisplayName = "ÌØÊâÖµÍù·µ£º×î´óÖµ")]
+    [Fact(DisplayName = "ç‰¹æ®Šå€¼å¾€è¿”ï¼šæœ€å¤§å€¼")]
     public void MaxValueRoundTrip()
     {
-        foreach (var format in Enum.GetValues<DataFormat>())
+        foreach (var byteOrder in Enum.GetValues<ByteOrder>())
         {
-            var bt = new ByteTransform { DataFormat = format };
+            var bt = new ByteTransform { ByteOrder = byteOrder };
             Assert.Equal(Int16.MaxValue, bt.TransInt16(bt.TransByte(Int16.MaxValue), 0));
             Assert.Equal(Int32.MaxValue, bt.TransInt32(bt.TransByte(Int32.MaxValue), 0));
             Assert.Equal(UInt16.MaxValue, bt.TransUInt16(bt.TransByte(UInt16.MaxValue), 0));

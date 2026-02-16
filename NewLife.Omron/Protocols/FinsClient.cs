@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
+using NewLife.IoT.ThingModels;
 using NewLife.Log;
 
 namespace NewLife.Omron.Protocols;
@@ -34,8 +35,12 @@ public partial class FinsClient : IDisposable
     /// <summary>目标单元地址</summary>
     public Byte DA2 { get; set; }
 
-    /// <summary>数据转换格式</summary>
-    public DataFormat DataFormat { get; set; } = DataFormat.CDAB;
+    /// <summary>字节序</summary>
+    public ByteOrder ByteOrder
+    {
+        get => Transform.ByteOrder;
+        set => Transform.ByteOrder = value;
+    }
 
     /// <summary>源节点地址 (FINS握手后获取)</summary>
     public Byte SourceNodeAddress { get; private set; }
@@ -62,7 +67,7 @@ public partial class FinsClient : IDisposable
     /// <summary>实例化FINS/TCP客户端</summary>
     public FinsClient()
     {
-        Transform = new ByteTransform { DataFormat = DataFormat };
+        Transform = new ByteTransform { ByteOrder = ByteOrder.CDAB };
     }
 
     /// <summary>实例化FINS/TCP客户端</summary>
@@ -107,8 +112,8 @@ public partial class FinsClient : IDisposable
             // 执行FINS握手
             PerformHandshake();
 
-            // 同步字节转换器的数据格式
-            Transform.DataFormat = DataFormat;
+            // 同步字节转换器的字节序
+            Transform.ByteOrder = ByteOrder;
 
             XTrace.WriteLine($"FINS连接成功: {IpAddress}:{Port}, 源节点地址: {SourceNodeAddress}");
         }
