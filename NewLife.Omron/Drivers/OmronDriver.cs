@@ -139,7 +139,9 @@ public class OmronDriver : DriverBase
         foreach (var point in points)
         {
             var addr = GetAddress(point);
-            var data = _finsClient.Read(addr, (UInt16)point.Length);
+            // FINS协议以字（2字节）为单位读取，需将字节数转换为字数
+            var wordCount = (UInt16)((point.Length + 1) / 2);
+            var data = _finsClient.Read(addr, wordCount);
 
             dic[point.Name] = data;
         }
@@ -168,7 +170,7 @@ public class OmronDriver : DriverBase
             Single v5 => _byteTransform.TransByte(v5),
             Double v6 => _byteTransform.TransByte(v6),
             String v7 => System.Text.Encoding.UTF8.GetBytes(v7), // UTF-8编码支持中文等多字节字符
-            Boolean v8 => new Byte[] { (Byte)(v8 ? 1 : 0) },
+            Boolean v8 => new Byte[] { (Byte)(v8 ? 1 : 0), 0x00 }, // FINS要求字对齐，Bool占1字节补充填充字节
             Byte[] v9 => v9,
             _ => throw new ArgumentException($"暂不支持写入该类型数据: {value?.GetType().Name}"),
         };

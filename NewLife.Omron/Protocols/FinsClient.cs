@@ -202,37 +202,56 @@ public class FinsClient : IDisposable
 
         try
         {
-            // 构建TCP封装 (FINS/TCP)
+            // FINS/TCP帧格式: FINS(4) + Length(4) + Command(4) + Error(4) + FINSmsg(N)
+            // Length字段 = 从Length字段自身开始到帧末尾的字节数 = 4+4+4+N = 12+N
             var requestData = request.ToBytes();
-            var header = new Byte[8];
+            var frameLength = 12 + requestData.Length;
+            var header = new Byte[16];
             header[0] = 0x46; // 'F'
             header[1] = 0x49; // 'I'
             header[2] = 0x4E; // 'N'
             header[3] = 0x53; // 'S'
-            header[4] = (Byte)((requestData.Length >> 24) & 0xFF);
-            header[5] = (Byte)((requestData.Length >> 16) & 0xFF);
-            header[6] = (Byte)((requestData.Length >> 8) & 0xFF);
-            header[7] = (Byte)(requestData.Length & 0xFF);
+            header[4] = (Byte)((frameLength >> 24) & 0xFF);
+            header[5] = (Byte)((frameLength >> 16) & 0xFF);
+            header[6] = (Byte)((frameLength >> 8) & 0xFF);
+            header[7] = (Byte)(frameLength & 0xFF);
+            // Command = 0x00000002 (FINS数据发送命令)
+            header[8]  = 0x00;
+            header[9]  = 0x00;
+            header[10] = 0x00;
+            header[11] = 0x02;
+            // Error = 0x00000000
+            header[12] = 0x00;
+            header[13] = 0x00;
+            header[14] = 0x00;
+            header[15] = 0x00;
 
             // 发送数据
             _stream.Write(header, 0, header.Length);
             _stream.Write(requestData, 0, requestData.Length);
             _stream.Flush();
 
-            // 接收响应头
-            var responseHeader = new Byte[8];
-            ReadExactly(responseHeader, 0, 8);
+            // 接收响应帧头 (16字节: FINS+Length+Command+Error)
+            var responseHeader = new Byte[16];
+            ReadExactly(responseHeader, 0, 16);
 
-            // 验证响应头
-            if (responseHeader[0] != 0x46 || responseHeader[1] != 0x49 || 
+            // 验证响应头魔术字
+            if (responseHeader[0] != 0x46 || responseHeader[1] != 0x49 ||
                 responseHeader[2] != 0x4E || responseHeader[3] != 0x53)
                 throw new Exception("响应头格式错误");
 
-            // 获取响应长度
-            var responseLength = (responseHeader[4] << 24) | (responseHeader[5] << 16) |
-                               (responseHeader[6] << 8) | responseHeader[7];
+            // 检查TCP层错误码
+            var tcpErrorCode = (responseHeader[12] << 24) | (responseHeader[13] << 16) |
+                               (responseHeader[14] << 8) | responseHeader[15];
+            if (tcpErrorCode != 0)
+                throw new Exception($"FINS/TCP错误: 0x{tcpErrorCode:X8}");
 
-            // 接收响应数据
+            // Length = 12 + FINSmsg.Length，故 FINSmsg.Length = Length - 12
+            var responseFrameLength = (responseHeader[4] << 24) | (responseHeader[5] << 16) |
+                                      (responseHeader[6] << 8) | responseHeader[7];
+            var responseLength = responseFrameLength - 12;
+
+            // 接收FINS消息数据
             var responseData = new Byte[responseLength];
             ReadExactly(responseData, 0, responseLength);
 
