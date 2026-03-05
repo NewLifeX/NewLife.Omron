@@ -129,7 +129,7 @@ public class ByteTransformTests
     public void TransUInt16_NullData_Throws()
     {
         var bt = new ByteTransform();
-        Assert.Throws<ArgumentException>(() => bt.TransUInt16(null, 0));
+        Assert.Throws<ArgumentException>(() => bt.TransUInt16(null!, 0));
     }
 
     #endregion
@@ -189,7 +189,7 @@ public class ByteTransformTests
     public void TransUInt32_NullData_Throws()
     {
         var bt = new ByteTransform();
-        Assert.Throws<ArgumentException>(() => bt.TransUInt32(null, 0));
+        Assert.Throws<ArgumentException>(() => bt.TransUInt32(null!, 0));
     }
 
     [Fact]
@@ -314,7 +314,7 @@ public class ByteTransformTests
     public void TransSingle_NullData_Throws()
     {
         var bt = new ByteTransform();
-        Assert.Throws<ArgumentException>(() => bt.TransSingle(null, 0));
+        Assert.Throws<ArgumentException>(() => bt.TransSingle(null!, 0));
     }
 
     #endregion
@@ -379,7 +379,7 @@ public class ByteTransformTests
     public void TransDouble_NullData_Throws()
     {
         var bt = new ByteTransform();
-        Assert.Throws<ArgumentException>(() => bt.TransDouble(null, 0));
+        Assert.Throws<ArgumentException>(() => bt.TransDouble(null!, 0));
     }
 
     #endregion
