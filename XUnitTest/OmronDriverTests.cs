@@ -123,6 +123,108 @@ public class OmronDriverTests
     }
 
     #endregion
+
+    #region Open
+
+    [Fact]
+    [DisplayName("Open参数为null时抛出异常")]
+    public void Open_NullParameter_Throws()
+    {
+        var driver = new OmronDriver();
+        var ex = Assert.Throws<ArgumentException>(() => driver.Open(null, null));
+        Assert.Contains("address", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    [DisplayName("Open地址为空时抛出异常")]
+    public void Open_EmptyAddress_Throws()
+    {
+        var driver = new OmronDriver();
+        var ex = Assert.Throws<ArgumentException>(() => driver.Open(null, new OmronParameter { Address = "" }));
+        Assert.Contains("address", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    [DisplayName("Open地址无端口分隔符时抛出异常")]
+    public void Open_AddressWithoutSeparator_Throws()
+    {
+        var driver = new OmronDriver();
+        var ex = Assert.Throws<ArgumentException>(() => driver.Open(null, new OmronParameter { Address = "192168100" }));
+        Assert.Contains("address", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    #endregion
+
+    #region Close
+
+    [Fact]
+    [DisplayName("未Open直接Close不抛出异常")]
+    public void Close_WithoutOpen_NoThrow()
+    {
+        var driver = new OmronDriver();
+        // 不应抛出异常
+        var ex = Record.Exception(() => driver.Close(null));
+        Assert.Null(ex);
+    }
+
+    #endregion
+
+    #region Read
+
+    [Fact]
+    [DisplayName("Read传入null点位集合返回空字典")]
+    public void Read_NullPoints_ReturnsEmpty()
+    {
+        var driver = new OmronDriver();
+        var result = driver.Read(null, null);
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    [DisplayName("Read传入空点位集合返回空字典")]
+    public void Read_EmptyPoints_ReturnsEmpty()
+    {
+        var driver = new OmronDriver();
+        var result = driver.Read(null, Array.Empty<IPoint>());
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    #endregion
+
+    #region Write
+
+    [Fact]
+    [DisplayName("Write传入不支持的类型抛出ArgumentException")]
+    public void Write_UnsupportedType_Throws()
+    {
+        var driver = new OmronDriver();
+        var point = new TestPoint { Address = "D100" };
+        // decimal 类型不在支持的类型列表中，应抛出 ArgumentException
+        Assert.Throws<ArgumentException>(() => driver.Write(null, point, 1.5m));
+    }
+
+    #endregion
+
+    #region OmronParameter属性
+
+    [Fact]
+    [DisplayName("OmronParameter属性可读写")]
+    public void OmronParameter_Properties()
+    {
+        var pm = new OmronParameter
+        {
+            Address = "10.0.0.1:9600",
+            DA2 = 5,
+            DataFormat = "ABCD"
+        };
+        Assert.Equal("10.0.0.1:9600", pm.Address);
+        Assert.Equal(5, pm.DA2);
+        Assert.Equal("ABCD", pm.DataFormat);
+    }
+
+    #endregion
 }
 
 /// <summary>用于测试的点位实现</summary>

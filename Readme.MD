@@ -19,6 +19,21 @@ Nuget：NewLife.Omron
 - 基于NewLife.IoT标准库，与IoT平台无缝集成
 
 
+## 单元测试状态
+
+| 测试类 | 测试数 | 状态 | 覆盖说明 |
+|:------:|:------:|:----:|---------|
+| ByteTransformTests | 78 | ✅ 通过 | TransInt16/UInt16/Int32/UInt32/Single/Double全4种格式，TransByte全类型全格式，往返转换，边界/异常路径 |
+| FinsAddressTests | 23 | ✅ 通过 | 全部存储区（DM/CIO/WR/HR/AR/EM/C）、位偏移、ToBytes、空/null/空白/不支持类型异常、地址边界 |
+| FinsMessageTests | 55 | ✅ 通过 | BuildReadRequest/BuildWriteRequest、ToBytes、ParseResponse、IsSuccess、GetErrorMessage全38个错误码 |
+| FinsHeaderCommandTests | 19 | ✅ 通过 | FinsHeader默认值/ToBytes/Parse/往返/异常；FinsCommand Read/Write/ToBytes/Parse/往返/异常 |
+| FinsClientTests | 19 | ✅ 通过 | 默认属性值、属性设置、Close/Dispose生命周期、连接失败异常 |
+| OmronDriverTests | 20 | ✅ 通过 | GetAddress、CreateParameter、Open（null/空地址/无分隔符）、Close、Read（null/空）、Write（不支持类型）、OmronParameter属性 |
+| **合计** | **214** | **✅ 全部通过** | |
+
+> 运行测试：`dotnet test XUnitTest/XUnitTest.csproj`
+
+
 ## 新生命项目矩阵
 各项目默认支持net9.0/netstandard2.1/netstandard2.0/net4.62/net4.5，旧版（2024.0801）支持net4.0/net2.0  
 

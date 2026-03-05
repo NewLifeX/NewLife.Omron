@@ -220,6 +220,13 @@ public class FinsAddressTests
     }
 
     [Fact]
+    [DisplayName("仅含空白字符的地址抛出异常")]
+    public void Parse_WhitespaceOnly_Throws()
+    {
+        Assert.Throws<ArgumentException>(() => FinsAddress.Parse("   "));
+    }
+
+    [Fact]
     [DisplayName("不支持的地址类型抛出异常")]
     public void Parse_UnsupportedArea_Throws()
     {
@@ -244,6 +251,21 @@ public class FinsAddressTests
     {
         var addr = FinsAddress.Parse("D32767");
         Assert.Equal((UInt16)32767, addr.Address);
+    }
+
+    [Fact]
+    [DisplayName("ToBytes地址最大值边界")]
+    public void ToBytes_MaxAddress()
+    {
+        var addr = new FinsAddress
+        {
+            MemoryType = 0x82,
+            Address = UInt16.MaxValue,
+            BitOffset = 0
+        };
+        var bytes = addr.ToBytes();
+        Assert.Equal(0xFF, bytes[1]);
+        Assert.Equal(0xFF, bytes[2]);
     }
 
     #endregion
