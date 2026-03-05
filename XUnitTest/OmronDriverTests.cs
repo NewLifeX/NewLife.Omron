@@ -131,7 +131,7 @@ public class OmronDriverTests
     public void Open_NullParameter_Throws()
     {
         var driver = new OmronDriver();
-        var ex = Assert.Throws<ArgumentException>(() => driver.Open(null, null));
+        var ex = Assert.Throws<ArgumentException>(() => driver.Open(null!, null!));
         Assert.Contains("address", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -140,7 +140,7 @@ public class OmronDriverTests
     public void Open_EmptyAddress_Throws()
     {
         var driver = new OmronDriver();
-        var ex = Assert.Throws<ArgumentException>(() => driver.Open(null, new OmronParameter { Address = "" }));
+        var ex = Assert.Throws<ArgumentException>(() => driver.Open(null!, new OmronParameter { Address = "" }));
         Assert.Contains("address", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -149,7 +149,7 @@ public class OmronDriverTests
     public void Open_AddressWithoutSeparator_Throws()
     {
         var driver = new OmronDriver();
-        var ex = Assert.Throws<ArgumentException>(() => driver.Open(null, new OmronParameter { Address = "192168100" }));
+        var ex = Assert.Throws<ArgumentException>(() => driver.Open(null!, new OmronParameter { Address = "192168100" }));
         Assert.Contains("address", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -163,7 +163,7 @@ public class OmronDriverTests
     {
         var driver = new OmronDriver();
         // 不应抛出异常
-        var ex = Record.Exception(() => driver.Close(null));
+        var ex = Record.Exception(() => driver.Close(null!));
         Assert.Null(ex);
     }
 
@@ -176,7 +176,7 @@ public class OmronDriverTests
     public void Read_NullPoints_ReturnsEmpty()
     {
         var driver = new OmronDriver();
-        var result = driver.Read(null, null);
+        var result = driver.Read(null!, null!);
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -186,7 +186,7 @@ public class OmronDriverTests
     public void Read_EmptyPoints_ReturnsEmpty()
     {
         var driver = new OmronDriver();
-        var result = driver.Read(null, Array.Empty<IPoint>());
+        var result = driver.Read(null!, Array.Empty<IPoint>());
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -202,7 +202,7 @@ public class OmronDriverTests
         var driver = new OmronDriver();
         var point = new TestPoint { Address = "D100" };
         // decimal 类型不在支持的类型列表中，应抛出 ArgumentException
-        Assert.Throws<ArgumentException>(() => driver.Write(null, point, 1.5m));
+        Assert.Throws<ArgumentException>(() => driver.Write(null!, point, 1.5m));
     }
 
     #endregion

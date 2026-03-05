@@ -182,14 +182,21 @@ public class FinsClientTests
     #region 连接错误
 
     [Fact]
-    [DisplayName("连接不可达地址抛出异常")]
-    public void Connect_Unreachable_ThrowsException()
+    [DisplayName("连接不可用端口抛出异常")]
+    public void Connect_Unavailable_Port_ThrowsException()
     {
+        // 使用本机回环地址 + 明确不监听的端口，触发可预测的连接失败
+        // 先用 TcpListener 分配临时端口后立即关闭，确保该端口没有服务在监听
+        var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
+        listener.Start();
+        var port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
+        listener.Stop();
+
         var client = new FinsClient
         {
-            IpAddress = "192.0.2.1", // TEST-NET地址，保证不可达
-            Port = 9600,
-            ConnectTimeOut = 200
+            IpAddress = "127.0.0.1",
+            Port = port,
+            ConnectTimeOut = 500
         };
         // 连接应失败并抛出异常
         var ex = Assert.ThrowsAny<Exception>(() => client.Connect());
