@@ -10,7 +10,9 @@ NewLife.Omron 是一个纯 .NET 实现的欧姆龙 PLC 通信协议库，完整�
 
 **源码**：https://github.com/NewLifeX/NewLife.Omron  
 **NuGet**：NewLife.Omron  
-**文档**：https://newlifex.com/iot
+**文档**：https://newlifex.com/iot  
+**需求文档**：[Doc/需求文档.md](Doc/需求文档.md)  
+**架构设计**：[Doc/架构设计.md](Doc/架构设计.md)
 
 ---
 
@@ -37,7 +39,7 @@ NewLife.Omron 是一个纯 .NET 实现的欧姆龙 PLC 通信协议库，完整�
 - ✅ **零依赖**：协议层仅依赖 .NET BCL，可独立使用
 - ✅ **多框架**：支持 net45/net461/netstandard2.0/netstandard2.1，兼容旧项目
 - ✅ **IoT 集成**：实现 NewLife.IoT 驱动接口，对接星尘、AntJob 等平台
-- ✅ **完整测试**：52 个单元测试 + 25 个集成测试，覆盖全部核心功能
+- ✅ **完整测试**：214 个单元测试全部通过，覆盖全部核心功能
 
 ---
 
