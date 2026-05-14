@@ -103,13 +103,13 @@ public class OmronDriverTests
     }
 
     [Fact]
-    [DisplayName("CreateParameter默认DataFormat为CDAB")]
+    [DisplayName("CreateParameter默认ByteOrder为CDAB")]
     public void CreateParameter_DefaultDataFormat()
     {
         var driver = new OmronDriver();
         var pm = driver.CreateParameter(null) as OmronParameter;
         Assert.NotNull(pm);
-        Assert.Equal("CDAB", pm.DataFormat);
+        Assert.Equal("CDAB", pm.ByteOrder);
     }
 
     [Fact]
@@ -217,11 +217,11 @@ public class OmronDriverTests
         {
             Address = "10.0.0.1:9600",
             DA2 = 5,
-            DataFormat = "ABCD"
+            ByteOrder = "ABCD"
         };
         Assert.Equal("10.0.0.1:9600", pm.Address);
         Assert.Equal(5, pm.DA2);
-        Assert.Equal("ABCD", pm.DataFormat);
+        Assert.Equal("ABCD", pm.ByteOrder);
     }
 
     #endregion

@@ -50,7 +50,7 @@ public class FinsAddressTests
     [InlineData("EM1:200", 0xA1, 200)]
     [InlineData("EM2:50", 0xA2, 50)]
     [InlineData("EM3:0", 0xA3, 0)]
-    [InlineData("EM100", 0x98, 100)]
+    [InlineData("EM100", 0xA0, 100)]
     public void ParseEmBankAddress(String address, Byte expectedType, UInt16 expectedAddr)
     {
         var result = FinsAddress.Parse(address);

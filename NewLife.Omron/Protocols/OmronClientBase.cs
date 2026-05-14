@@ -131,12 +131,12 @@ public abstract class OmronClientBase : IDisposable
 
     /// <summary>读取字符串</summary>
     /// <param name="address">地址</param>
-    /// <param name="length">字节长度</param>
+    /// <param name="length">读取字数（每字 2 字节）</param>
     /// <returns>字符串</returns>
     public String ReadString(String address, UInt16 length)
     {
-        var data = Read(address, (UInt16)((length + 1) / 2));
-        return Transform.TransString(data, 0, length);
+        var data = Read(address, length);
+        return Transform.TransString(data, 0, data.Length);
     }
 
     #endregion

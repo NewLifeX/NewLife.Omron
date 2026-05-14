@@ -12,6 +12,9 @@ public enum MemoryArea : Byte
     /// <summary>CIO位区。Core I/O 位访问</summary>
     CIO_Bit = 0x30,
 
+    /// <summary>C系列IO位区。C/CV系列兼容的 Channel I/O 位访问，区域代码 0x00</summary>
+    IO_Bit = 0x00,
+
     /// <summary>WR位区。Work Area 位访问</summary>
     WR_Bit = 0x31,
 
@@ -36,6 +39,9 @@ public enum MemoryArea : Byte
 
     /// <summary>CIO字区。Core I/O 字访问</summary>
     CIO_Word = 0xB0,
+
+    /// <summary>C系列IO字区。C/CV系列兼容的 Channel I/O 字访问，区域代码 0x80</summary>
+    IO_Word = 0x80,
 
     /// <summary>WR字区。Work Area 字访问</summary>
     WR_Word = 0xB1,
@@ -105,6 +111,7 @@ public static class MemoryAreaHelper
     public static Byte GetBitAreaCode(Byte wordArea) => wordArea switch
     {
         (Byte)MemoryArea.CIO_Word => (Byte)MemoryArea.CIO_Bit,
+        (Byte)MemoryArea.IO_Word  => (Byte)MemoryArea.IO_Bit,
         (Byte)MemoryArea.WR_Word => (Byte)MemoryArea.WR_Bit,
         (Byte)MemoryArea.HR_Word => (Byte)MemoryArea.HR_Bit,
         (Byte)MemoryArea.AR_Word => (Byte)MemoryArea.AR_Bit,

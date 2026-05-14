@@ -16,7 +16,6 @@ namespace NewLife.Omron.Drivers;
 public class OmronDriver : DriverBase
 {
     private FinsClient _finsClient;
-    private ByteTransform _byteTransform;
 
     /// <summary>
     /// 打开通道数量
@@ -32,7 +31,7 @@ public class OmronDriver : DriverBase
     {
         Address = "127.0.0.1:9600",
         DA2 = 0,
-        DataFormat = "CDAB",
+        ByteOrder = "CDAB",
     };
 
     /// <summary>
@@ -90,14 +89,9 @@ public class OmronDriver : DriverBase
                         DA2 = pm.DA2,
                     };
 
-                    // 设置数据格式
-                    if (!pm.DataFormat.IsNullOrEmpty() && Enum.TryParse<DataFormat>(pm.DataFormat, out var format))
-                    {
+                    // 设置字节序
+                    if (!pm.ByteOrder.IsNullOrEmpty() && Enum.TryParse<DataFormat>(pm.ByteOrder, out var format))
                         _finsClient.DataFormat = format;
-                    }
-
-                    // 创建字节转换器
-                    _byteTransform = new ByteTransform { DataFormat = _finsClient.DataFormat };
 
                     // 连接服务器
                     _finsClient.Connect();
@@ -160,15 +154,17 @@ public class OmronDriver : DriverBase
     public override Object Write(INode node, IPoint point, Object value)
     {
         var addr = GetAddress(point);
-        
+
+        // 先做类型转换，不支持的类型直接抛出 ArgumentException（此处不依赖 _finsClient）
+        var transform = _finsClient?.Transform ?? new ByteTransform();
         Byte[] data = value switch
         {
-            Int32 v1 => _byteTransform.TransByte(v1),
-            Int16 v2 => _byteTransform.TransByte(v2),
-            UInt32 v3 => _byteTransform.TransByte(v3),
-            UInt16 v4 => _byteTransform.TransByte(v4),
-            Single v5 => _byteTransform.TransByte(v5),
-            Double v6 => _byteTransform.TransByte(v6),
+            Int32 v1 => transform.TransByte(v1),
+            Int16 v2 => transform.TransByte(v2),
+            UInt32 v3 => transform.TransByte(v3),
+            UInt16 v4 => transform.TransByte(v4),
+            Single v5 => transform.TransByte(v5),
+            Double v6 => transform.TransByte(v6),
             String v7 => System.Text.Encoding.UTF8.GetBytes(v7), // UTF-8编码支持中文等多字节字符
             Boolean v8 => new Byte[] { (Byte)(v8 ? 1 : 0), 0x00 }, // FINS要求字对齐，Bool占1字节补充填充字节
             Byte[] v9 => v9,

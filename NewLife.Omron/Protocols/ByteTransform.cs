@@ -394,4 +394,28 @@ public class ByteTransform
     }
 
     #endregion
+
+    /// <summary>数据格式（ByteOrder的别名属性，用于向后兼容）</summary>
+    public DataFormat DataFormat
+    {
+        get => (DataFormat)(Int32)ByteOrder;
+        set => ByteOrder = (ByteOrder)(Int32)value;
+    }
+}
+
+/// <summary>数据格式枚举。与 ByteOrder 等价，提供向后兼容</summary>
+/// <remarks>值与 NewLife.IoT.ThingModels.ByteOrder 一一对应：ABCD=1, DCBA=2, BADC=3, CDAB=4</remarks>
+public enum DataFormat
+{
+    /// <summary>大端序（网络字节序）</summary>
+    ABCD = 1,
+
+    /// <summary>小端序（x86 本机字节序）</summary>
+    DCBA = 2,
+
+    /// <summary>字内字节交换</summary>
+    BADC = 3,
+
+    /// <summary>双字交换（欧姆龙 PLC 默认格式）</summary>
+    CDAB = 4,
 }

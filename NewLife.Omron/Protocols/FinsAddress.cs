@@ -89,7 +89,8 @@ public class FinsAddress
             }
             else
             {
-                result.MemoryType = (Byte)MemoryArea.EM_Current_Word;
+                // 无 Bank 编号时默认为 Bank0（EM0 区域代码 0xA0）
+                result.MemoryType = (Byte)MemoryArea.EM0_Word;
             }
         }
         else if (address.StartsWith("IR"))
@@ -124,7 +125,8 @@ public class FinsAddress
         }
         else if (address.StartsWith("C"))
         {
-            result.MemoryType = (Byte)MemoryArea.CIO_Word;
+            // C 前缀兴1Byte：Channel I/O，兼容 C/CV 系列，区域代码 0x80
+            result.MemoryType = (Byte)MemoryArea.IO_Word;
             address = address[1..];
         }
         else
