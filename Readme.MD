@@ -39,7 +39,7 @@ NewLife.Omron 是一个纯 .NET 实现的欧姆龙 PLC 通信协议库，完整�
 - ✅ **零依赖**：协议层仅依赖 .NET BCL，可独立使用
 - ✅ **多框架**：支持 net45/net461/netstandard2.0/netstandard2.1，兼容旧项目
 - ✅ **IoT 集成**：实现 NewLife.IoT 驱动接口，对接星尘、AntJob 等平台
-- ✅ **完整测试**：214 个单元测试全部通过，覆盖全部核心功能
+- ✅ **完整测试**：387 个单元测试全部通过，覆盖全部核心功能
 
 ---
 
@@ -345,13 +345,21 @@ TIM5        - 定时器5的当前值
 
 | 测试类 | 测试数 | 状态 | 覆盖说明 |
 |:------:|:------:|:----:|---------|
-| ByteTransformTests | 78 | ✅ 通过 | TransInt16/UInt16/Int32/UInt32/Single/Double全4种格式，TransByte全类型全格式，往返转换，边界/异常路径 |
+| ByteTransformTests | 79 | ✅ 通过 | TransInt16/UInt16/Int32/UInt32/Single/Double劄4种格式，TransByte全类型全格式，往返转换，边界/异常路径 |
 | FinsAddressTests | 23 | ✅ 通过 | 全部存储区（DM/CIO/WR/HR/AR/EM/C）、位偏移、ToBytes、空/null/空白/不支持类型异常、地址边界 |
-| FinsMessageTests | 55 | ✅ 通过 | BuildReadRequest/BuildWriteRequest、ToBytes、ParseResponse、IsSuccess、GetErrorMessage全38个错误码 |
-| FinsHeaderCommandTests | 19 | ✅ 通过 | FinsHeader默认值/ToBytes/Parse/往返/异常；FinsCommand Read/Write/ToBytes/Parse/往返/异常 |
+| FinsMessageTests | 58 | ✅ 通过 | BuildReadRequest/BuildWriteRequest、ToBytes、ParseResponse、IsSuccess、GetErrorMessage兣38个错误码 |
+| FinsHeaderCommandTests | 16 | ✅ 通过 | FinsHeader默认值/ToBytes/Parse/往返；FinsCommand Read/Write/ToBytes/Parse/往返/异常 |
 | FinsClientTests | 19 | ✅ 通过 | 默认属性值、属性设置、Close/Dispose生命周期、连接失败异常 |
-| OmronDriverTests | 20 | ✅ 通过 | GetAddress、CreateParameter、Open（null/空地址/无分隔符）、Close、Read（null/空）、Write（不支持类型）、OmronParameter属性 |
-| **合计** | **214** | **✅ 全部通过** | |
+| OmronDriverTests | 19 | ✅ 通过 | GetAddress、CreateParameter、Open（null/空地址/无分隔符）、Close、Read（null/空）、Write（不支持类型）、OmronParameter属性 |
+| Protocols/ByteTransformTests | 23 | ✅ 通过 | 字节序转换深度参数化测试 |
+| Protocols/CpuModelTests | 6 | ✅ 通过 | CPU 型号解析与识别 |
+| Protocols/FinsAddressTests | 37 | ✅ 通过 | 地址解析全量参数化测试（所有前缀+EM Bank+位偏移） |
+| Protocols/FinsCommandTests | 10 | ✅ 通过 | FINS 命令码正确性验证 |
+| Protocols/FinsHeaderTests | 6 | ✅ 通过 | FINS 路由头序列化 |
+| Protocols/FinsMessageTests | 22 | ✅ 通过 | FINS 消息构建/解析深度测试 |
+| Protocols/FinsServerTests | 33 | ✅ 通过 | 端到端集成测试（FinsServer 内存回路，全命令验证） |
+| Protocols/MemoryAreaTests | 35 | ✅ 通过 | 存储区枚举值，位区映射，IsBitArea 判断 |
+| **合计** | **387** | **✅ 全部通过** | |
 
 > 运行测试：`dotnet test XUnitTest/XUnitTest.csproj`
 
