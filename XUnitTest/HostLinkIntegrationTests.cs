@@ -202,4 +202,70 @@ public class HostLinkIntegrationTests : IDisposable
     }
 
     #endregion
+
+    #region 扩展类型
+
+    [Fact(DisplayName = "HostLink: 写入并读取 DM 区 UInt64")]
+    public void WriteReadDmUInt64()
+    {
+        _client.WriteUInt64("D1000", 12345678901234ul);
+        var value = _client.ReadUInt64("D1000");
+        Assert.Equal(12345678901234ul, value);
+    }
+
+    [Fact(DisplayName = "HostLink: 写入并读取 DM 区字符串")]
+    public void WriteReadDmString()
+    {
+        // 写入 4 字节 ASCII（2 个字），再读出
+        _client.WriteString("D1010", "AB");
+        var raw = _client.Read("D1010", 1);
+        // 1 个字 = 2 字节，值应含 A(65) B(66)
+        Assert.NotNull(raw);
+        Assert.Equal(2, raw.Length);
+    }
+
+    [Fact(DisplayName = "HostLink: 写入并读取 CIO 区 Int32")]
+    public void WriteReadCioInt32()
+    {
+        _client.WriteInt32("CIO200", -55555);
+        var value = _client.ReadInt32("CIO200");
+        Assert.Equal(-55555, value);
+    }
+
+    [Fact(DisplayName = "HostLink: 写入并读取 WR 区 UInt32")]
+    public void WriteReadWrUInt32()
+    {
+        _client.WriteUInt32("W100", 999999u);
+        var value = _client.ReadUInt32("W100");
+        Assert.Equal(999999u, value);
+    }
+
+    [Fact(DisplayName = "HostLink: 极值 Int32 写入读出正确")]
+    public void WriteReadInt32Extremes()
+    {
+        _client.WriteInt32("D1020", Int32.MinValue);
+        Assert.Equal(Int32.MinValue, _client.ReadInt32("D1020"));
+
+        _client.WriteInt32("D1024", Int32.MaxValue);
+        Assert.Equal(Int32.MaxValue, _client.ReadInt32("D1024"));
+    }
+
+    [Fact(DisplayName = "HostLink: 写入 0 值再读出为 0")]
+    public void WriteZeroValueRoundtrips()
+    {
+        _client.WriteInt32("D1030", 12345);  // 先写非零
+        _client.WriteInt32("D1030", 0);      // 覆盖为 0
+        var value = _client.ReadInt32("D1030");
+        Assert.Equal(0, value);
+    }
+
+    [Fact(DisplayName = "HostLink: EM0 区读写 Int32")]
+    public void WriteReadEm0Int32()
+    {
+        _client.WriteInt32("EM0:100", -11111);
+        var value = _client.ReadInt32("EM0:100");
+        Assert.Equal(-11111, value);
+    }
+
+    #endregion
 }

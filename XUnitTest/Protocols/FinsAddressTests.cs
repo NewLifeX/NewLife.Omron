@@ -103,4 +103,66 @@ public class FinsAddressTests
         var addr = FinsAddress.Parse(address);
         Assert.Equal(expected, addr.ToString());
     }
+
+    [Theory(DisplayName = "大字地址解析正确")]
+    [InlineData("D9999", 0x82, 9999)]
+    [InlineData("D19999", 0x82, 19999)]
+    [InlineData("CIO9999", 0xB0, 9999)]
+    [InlineData("W9999", 0xB1, 9999)]
+    [InlineData("HR9999", 0xB2, 9999)]
+    public void LargeWordAddress_ParsedCorrectly(String address, Byte expectedAreaCode, UInt16 expectedWord)
+    {
+        var addr = FinsAddress.Parse(address);
+        Assert.Equal(expectedAreaCode, addr.MemoryType);
+        Assert.Equal(expectedWord, addr.Address);
+    }
+
+    [Theory(DisplayName = "位偏移 0~15 均可解析")]
+    [InlineData("CIO100.0", 0)]
+    [InlineData("CIO100.7", 7)]
+    [InlineData("CIO100.15", 15)]
+    [InlineData("D50.0", 0)]
+    [InlineData("D50.15", 15)]
+    public void BitOffset_AllPositions_Parsed(String address, Byte expectedBit)
+    {
+        var addr = FinsAddress.Parse(address);
+        Assert.Equal(expectedBit, addr.BitOffset);
+        Assert.True(addr.IsBit);
+    }
+
+    [Theory(DisplayName = "EM Bank 地址解析正确")]
+    [InlineData("EM0:0", 0xA0, 0)]
+    [InlineData("EM0:9999", 0xA0, 9999)]
+    [InlineData("EM1:100", 0xA1, 100)]
+    [InlineData("EM3:500", 0xA3, 500)]
+    public void EmBankAddress_ParsedCorrectly(String address, Byte expectedAreaCode, UInt16 expectedWord)
+    {
+        var addr = FinsAddress.Parse(address);
+        Assert.Equal(expectedAreaCode, addr.MemoryType);
+        Assert.Equal(expectedWord, addr.Address);
+    }
+
+    [Theory(DisplayName = "地址字 0 解析正确（起始地址）")]
+    [InlineData("D0", 0x82, 0)]
+    [InlineData("CIO0", 0xB0, 0)]
+    [InlineData("W0", 0xB1, 0)]
+    [InlineData("HR0", 0xB2, 0)]
+    [InlineData("AR0", 0xB3, 0)]
+    public void ZeroWordAddress_ParsedCorrectly(String address, Byte expectedAreaCode, UInt16 expectedWord)
+    {
+        var addr = FinsAddress.Parse(address);
+        Assert.Equal(expectedAreaCode, addr.MemoryType);
+        Assert.Equal(expectedWord, addr.Address);
+    }
+
+    [Theory(DisplayName = "大地址字节数组编码正确")]
+    [InlineData("D9999", new Byte[] { 0x82, 0x27, 0x0F, 0x00 })]
+    [InlineData("CIO9999", new Byte[] { 0xB0, 0x27, 0x0F, 0x00 })]
+    public void LargeAddress_ToBytes_Correct(String address, Byte[] expected)
+    {
+        var addr = FinsAddress.Parse(address);
+        // ToBytes() 返回: AreaCode(1) + Word_H(1) + Word_L(1) + BitOffset(1)
+        var bytes = addr.ToBytes();
+        Assert.Equal(expected, bytes);
+    }
 }

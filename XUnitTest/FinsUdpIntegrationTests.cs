@@ -168,4 +168,94 @@ public class FinsUdpIntegrationTests : IDisposable
     }
 
     #endregion
+
+    #region 异步 API
+
+    [Fact(DisplayName = "UDP Async: 异步写入并读取 Int16")]
+    public async Task AsyncWriteReadInt16()
+    {
+        await _client.WriteInt16Async("D1000", -555);
+        var value = await _client.ReadInt16Async("D1000");
+        Assert.Equal(-555, value);
+    }
+
+    [Fact(DisplayName = "UDP Async: ReadInt32Async 与 WriteInt32Async")]
+    public async Task AsyncReadWriteInt32()
+    {
+        // 先同步写，再异步读
+        _client.WriteInt32("D1010", 123456);
+        var value = await _client.ReadInt32Async("D1010");
+        Assert.Equal(123456, value);
+    }
+
+    [Fact(DisplayName = "UDP Async: ReadInt32Async 读出异步写入的值")]
+    public async Task AsyncWriteThenAsyncRead()
+    {
+        await _client.WriteInt32Async("D1020", -999999);
+        var value = await _client.ReadInt32Async("D1020");
+        Assert.Equal(-999999, value);
+    }
+
+    [Fact(DisplayName = "UDP Async: ReadUInt32Async 返回正确值")]
+    public async Task AsyncReadUInt32()
+    {
+        _client.WriteUInt32("D1030", 3000000u);
+        var value = await _client.ReadUInt32Async("D1030");
+        Assert.Equal(3000000u, value);
+    }
+
+    [Fact(DisplayName = "UDP Async: ReadInt64Async 读取 64 位整数")]
+    public async Task AsyncReadInt64()
+    {
+        _client.WriteInt64("D1040", -5_000_000_000L);
+        var value = await _client.ReadInt64Async("D1040");
+        Assert.Equal(-5_000_000_000L, value);
+    }
+
+    [Fact(DisplayName = "UDP Async: ReadFloatAsync 读取浮点数")]
+    public async Task AsyncReadFloat()
+    {
+        _client.WriteFloat("D1050", 2.718f);
+        var value = await _client.ReadFloatAsync("D1050");
+        Assert.Equal(2.718f, value, precision: 3);
+    }
+
+    [Fact(DisplayName = "UDP Async: ReadDoubleAsync 读取双精度浮点数")]
+    public async Task AsyncReadDouble()
+    {
+        _client.WriteDouble("D1060", 1.4142135623);
+        var value = await _client.ReadDoubleAsync("D1060");
+        Assert.Equal(1.4142135623, value, precision: 9);
+    }
+
+    [Fact(DisplayName = "UDP Async: ReadBoolAsync 读取位值")]
+    public async Task AsyncReadBool()
+    {
+        _client.WriteBit("CIO200.3", [1]);
+        var value = await _client.ReadBoolAsync("CIO200.3");
+        Assert.True(value);
+    }
+
+    [Fact(DisplayName = "UDP Async: ReadStringAsync 读取字符串")]
+    public async Task AsyncReadString()
+    {
+        _client.WriteString("D1070", "AB");
+        var value = await _client.ReadStringAsync("D1070", 1);
+        // 返回 2 字节的 ASCII 字符串（字访问，1 个字 = 2 字节）
+        Assert.NotNull(value);
+    }
+
+    [Fact(DisplayName = "UDP Async: 多次并发异步读取结果一致")]
+    public async Task ConcurrentAsyncReadsAreConsistent()
+    {
+        _client.WriteInt32("D1080", 77777);
+
+        var tasks = Enumerable.Range(0, 8).Select(_ =>
+            _client.ReadInt32Async("D1080"));
+        var results = await Task.WhenAll(tasks);
+
+        Assert.All(results, v => Assert.Equal(77777, v));
+    }
+
+    #endregion
 }

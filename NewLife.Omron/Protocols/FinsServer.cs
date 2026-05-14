@@ -59,6 +59,9 @@ public class FinsServer : IDisposable
     /// <summary>时钟值。为null时返回当前系统时间</summary>
     public DateTime? Clock { get; set; }
 
+    /// <summary>强制错误码。非零时所有命令均返回此错误码（用于测试错误处理）</summary>
+    public UInt16 ForceErrorCode { get; set; }
+
     #endregion
 
     #region 方法
@@ -201,6 +204,10 @@ public class FinsServer : IDisposable
 
         Byte[] responseData = null;
         UInt16 endCode = 0x0000;
+
+        // 强制错误码（用于测试）
+        if (ForceErrorCode != 0)
+            return BuildResponse(reqHeader, cmd, ForceErrorCode, null);
 
         try
         {
