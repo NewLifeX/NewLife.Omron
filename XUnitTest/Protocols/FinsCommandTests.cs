@@ -1,12 +1,11 @@
 using NewLife.Omron.Protocols;
-using Xunit;
 
 namespace XUnitTest.Protocols;
 
-/// <summary>FinsCommand²âÊÔ</summary>
+/// <summary>FinsCommand å‘½ä»¤ç æµ‹è¯•</summary>
 public class FinsCommandTests
 {
-    [Fact(DisplayName = "Ô¤¶¨ÒåÃüÁî´úÂëÕıÈ·")]
+    [Fact(DisplayName = "é¢„å®šä¹‰å­˜å‚¨åŒºå‘½ä»¤ç æ­£ç¡®")]
     public void PredefinedCommandCodes()
     {
         Assert.Equal(0x01, FinsCommand.MemoryAreaRead.MRC);
@@ -25,7 +24,7 @@ public class FinsCommandTests
         Assert.Equal(0x05, FinsCommand.MemoryAreaTransfer.SRC);
     }
 
-    [Fact(DisplayName = "CPU¿ØÖÆÃüÁî´úÂëÕıÈ·")]
+    [Fact(DisplayName = "CPU æ§åˆ¶å‘½ä»¤ç æ­£ç¡®")]
     public void CpuControlCommandCodes()
     {
         Assert.Equal(0x04, FinsCommand.Run.MRC);
@@ -35,7 +34,7 @@ public class FinsCommandTests
         Assert.Equal(0x02, FinsCommand.Stop.SRC);
     }
 
-    [Fact(DisplayName = "Éè±¸ĞÅÏ¢ÃüÁî´úÂëÕıÈ·")]
+    [Fact(DisplayName = "è®¾å¤‡ä¿¡æ¯å‘½ä»¤ç æ­£ç¡®")]
     public void DeviceInfoCommandCodes()
     {
         Assert.Equal(0x05, FinsCommand.ControllerDataRead.MRC);
@@ -48,7 +47,7 @@ public class FinsCommandTests
         Assert.Equal(0x20, FinsCommand.CycleTimeRead.SRC);
     }
 
-    [Fact(DisplayName = "Ê±ÖÓÃüÁî´úÂëÕıÈ·")]
+    [Fact(DisplayName = "æ—¶é’Ÿå‘½ä»¤ç æ­£ç¡®")]
     public void ClockCommandCodes()
     {
         Assert.Equal(0x07, FinsCommand.ClockRead.MRC);
@@ -58,7 +57,7 @@ public class FinsCommandTests
         Assert.Equal(0x02, FinsCommand.ClockWrite.SRC);
     }
 
-    [Fact(DisplayName = "´íÎó´¦ÀíÃüÁî´úÂëÕıÈ·")]
+    [Fact(DisplayName = "é”™è¯¯ç®¡ç†å‘½ä»¤ç æ­£ç¡®")]
     public void ErrorCommandCodes()
     {
         Assert.Equal(0x21, FinsCommand.ErrorClear.MRC);
@@ -71,7 +70,7 @@ public class FinsCommandTests
         Assert.Equal(0x03, FinsCommand.ErrorLogClear.SRC);
     }
 
-    [Fact(DisplayName = "ToBytesÉú³É2×Ö½Ú")]
+    [Fact(DisplayName = "ToBytes ç”Ÿæˆ 2 å­—èŠ‚")]
     public void ToBytesProduces2Bytes()
     {
         var cmd = FinsCommand.MemoryAreaRead;
@@ -82,7 +81,7 @@ public class FinsCommandTests
         Assert.Equal(0x01, bytes[1]);
     }
 
-    [Fact(DisplayName = "Parse´Ó×Ö½ÚÊı×é½âÎö")]
+    [Fact(DisplayName = "Parse ä»å­—èŠ‚è§£æå‘½ä»¤")]
     public void ParseFromBytes()
     {
         var data = new Byte[] { 0x04, 0x02 };
@@ -92,13 +91,13 @@ public class FinsCommandTests
         Assert.Equal(0x02, cmd.SRC);
     }
 
-    [Fact(DisplayName = "ParseÊı¾İ²»×ãÓ¦Å×³öÒì³£")]
+    [Fact(DisplayName = "Parse æ•°æ®ä¸è¶³åº”æŠ›å‡ºå¼‚å¸¸")]
     public void ParseInsufficientDataShouldThrow()
     {
         Assert.Throws<ArgumentException>(() => FinsCommand.Parse(new Byte[1]));
     }
 
-    [Fact(DisplayName = "Read/WriteÎª¶ÔÓ¦ÃüÁîµÄ±ğÃû")]
+    [Fact(DisplayName = "Read/Write ä¸ºå¯¹åº”å‘½ä»¤çš„åˆ«å")]
     public void ReadWriteAreAliases()
     {
         var read = FinsCommand.Read;
@@ -112,7 +111,7 @@ public class FinsCommandTests
         Assert.Equal(memWrite.SRC, write.SRC);
     }
 
-    [Fact(DisplayName = "ToString·µ»Ø¸ñÊ½»¯×Ö·û´®")]
+    [Fact(DisplayName = "ToString è¿”å›æ ¼å¼åŒ–å­—ç¬¦ä¸²")]
     public void ToStringReturnsFormatted()
     {
         var cmd = FinsCommand.MemoryAreaRead;

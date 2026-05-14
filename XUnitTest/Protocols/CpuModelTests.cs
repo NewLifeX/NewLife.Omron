@@ -1,15 +1,14 @@
 using NewLife.Omron.Protocols;
-using Xunit;
 
 namespace XUnitTest.Protocols;
 
-/// <summary>CpuUnitDataºÍCpuUnitStatusÄ£ĞÍ²âÊÔ</summary>
+/// <summary>CpuUnitData å’Œ CpuUnitStatus æ¨¡å‹æµ‹è¯•</summary>
 public class CpuModelTests
 {
-    [Fact(DisplayName = "CpuUnitData½âÎö")]
+    [Fact(DisplayName = "CpuUnitData è§£æ")]
     public void ParseCpuUnitData()
     {
-        // ¹¹½¨Ä£ÄâÊı¾İ£ºĞÍºÅ(20) + °æ±¾(4) + ÏµÍ³°æ±¾(4) + ÈİÁ¿(2)
+        // æ„é€ æ¨¡æ‹Ÿæ•°æ®ï¼šå‹å·(20) + ç‰ˆæœ¬(4) + ç³»ç»Ÿç‰ˆæœ¬(4) + å®¹é‡(2)
         var data = new Byte[30];
         var model = System.Text.Encoding.ASCII.GetBytes("CJ2M-CPU31");
         Array.Copy(model, 0, data, 0, model.Length);
@@ -21,7 +20,7 @@ public class CpuModelTests
         Array.Copy(sysVer, 0, data, 24, sysVer.Length);
 
         data[28] = 0x00;
-        data[29] = 0x64; // ÈİÁ¿ 100
+        data[29] = 0x64; // å®¹é‡ 100
 
         var cpu = CpuUnitData.Parse(data);
 
@@ -31,19 +30,19 @@ public class CpuModelTests
         Assert.Equal((UInt16)100, cpu.AreaDataCapacity);
     }
 
-    [Fact(DisplayName = "CpuUnitDataÊı¾İ²»×ãÓ¦Å×³öÒì³£")]
+    [Fact(DisplayName = "CpuUnitData æ•°æ®ä¸è¶³åº”æŠ›å‡ºå¼‚å¸¸")]
     public void ParseCpuUnitDataInsufficientShouldThrow()
     {
         Assert.Throws<ArgumentException>(() => CpuUnitData.Parse(new Byte[10]));
         Assert.Throws<ArgumentException>(() => CpuUnitData.Parse(null));
     }
 
-    [Fact(DisplayName = "CpuUnitStatus½âÎöÔËĞĞÄ£Ê½")]
+    [Fact(DisplayName = "CpuUnitStatus è§£æ Run æ¨¡å¼")]
     public void ParseCpuUnitStatusRunMode()
     {
         var data = new Byte[8];
-        data[0] = 0x04; // RunÄ£Ê½
-        data[1] = 0x00; // ÎŞÖÂÃü´íÎó
+        data[0] = 0x04; // Run æ¨¡å¼
+        data[1] = 0x00; // æ— è‡´å‘½é”™è¯¯
 
         var status = CpuUnitStatus.Parse(data);
 
@@ -51,15 +50,15 @@ public class CpuModelTests
         Assert.False(status.FatalError);
     }
 
-    [Fact(DisplayName = "CpuUnitStatus½âÎö´íÎó×´Ì¬")]
+    [Fact(DisplayName = "CpuUnitStatus è§£æé”™è¯¯çŠ¶æ€")]
     public void ParseCpuUnitStatusError()
     {
         var data = new Byte[8];
-        data[0] = 0x00; // ProgramÄ£Ê½
-        data[1] = 0x01; // ÖÂÃü´íÎó
+        data[0] = 0x00; // Program æ¨¡å¼
+        data[1] = 0x01; // è‡´å‘½é”™è¯¯
         data[2] = 0x00;
-        data[3] = 0x10; // ´íÎóÊı¾İ
-        data[4] = 0x01; // ·ÇÖÂÃü´íÎó
+        data[3] = 0x10; // è‡´å‘½é”™è¯¯æ•°æ®
+        data[4] = 0x01; // éè‡´å‘½é”™è¯¯
         data[5] = 0x20;
 
         var status = CpuUnitStatus.Parse(data);
@@ -70,14 +69,14 @@ public class CpuModelTests
         Assert.True(status.NonFatalError);
     }
 
-    [Fact(DisplayName = "CpuUnitStatusÊı¾İ²»×ãÓ¦Å×³öÒì³£")]
+    [Fact(DisplayName = "CpuUnitStatus æ•°æ®ä¸è¶³åº”æŠ›å‡ºå¼‚å¸¸")]
     public void ParseCpuUnitStatusInsufficientShouldThrow()
     {
         Assert.Throws<ArgumentException>(() => CpuUnitStatus.Parse(new Byte[3]));
         Assert.Throws<ArgumentException>(() => CpuUnitStatus.Parse(null));
     }
 
-    [Fact(DisplayName = "CpuModeÃ¶¾ÙÖµÕıÈ·")]
+    [Fact(DisplayName = "CpuMode æšä¸¾å€¼æ­£ç¡®")]
     public void CpuModeValues()
     {
         Assert.Equal((Byte)0x00, (Byte)CpuMode.Program);
