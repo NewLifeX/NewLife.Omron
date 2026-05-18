@@ -1,3 +1,4 @@
+﻿using NewLife.IoT.Drivers;
 using NewLife.IoT.ThingModels;
 using NewLife.Omron.Drivers;
 using NewLife.Omron.Protocols;
@@ -61,7 +62,7 @@ public class OmronDriverIntegrationTests : IDisposable
         _server.WriteMemory(dmCode, 0, [0x12, 0x34, 0x56, 0x78]);
 
         var point = new TestPoint { Name = "D0", Address = "D0", Type = "UInt32" };
-        var result = _driver.Read(_node, [point]);
+        var result = DriverExtensions.Read(_driver, _node, [point]);
 
         Assert.NotNull(result);
     }
@@ -79,9 +80,9 @@ public class OmronDriverIntegrationTests : IDisposable
             new TestPoint { Name = "D102", Address = "D102", Type = "UInt16" }
         };
 
-        var results = _driver.Read(_node, points);
+        var results = DriverExtensions.Read(_driver, _node, points);
         Assert.NotNull(results);
-        Assert.Equal(2, results.Count);
+        Assert.Equal(2, results.Points.Length);
     }
 
     [Fact(DisplayName = "Driver: Write 写入 DM 区")]
@@ -89,7 +90,7 @@ public class OmronDriverIntegrationTests : IDisposable
     {
         var point = new TestPoint { Name = "D200", Address = "D200", Type = "Int32" };
         // Write 方法接收 object 值
-        _driver.Write(_node, (IPoint)point, 99999);
+        DriverExtensions.Write(_driver, _node, point, 99999);
 
         Thread.Sleep(50);
 
@@ -128,14 +129,14 @@ public class OmronDriverIntegrationTests : IDisposable
     public void ReadNullAddressThrows()
     {
         var point = new TestPoint { Name = "E", Address = "", Type = "Int16" };
-        Assert.ThrowsAny<Exception>(() => _driver.Read(_node, [point]));
+        Assert.ThrowsAny<Exception>(() => DriverExtensions.Read(_driver, _node, [point]));
     }
 
     [Fact(DisplayName = "Driver: 无效地址格式抛出异常")]
     public void ReadInvalidAddressThrows()
     {
         var point = new TestPoint { Name = "INV", Address = "INVALID_AREA_XYZ", Type = "Int16" };
-        Assert.ThrowsAny<Exception>(() => _driver.Read(_node, [point]));
+        Assert.ThrowsAny<Exception>(() => DriverExtensions.Read(_driver, _node, [point]));
     }
 
     #endregion
