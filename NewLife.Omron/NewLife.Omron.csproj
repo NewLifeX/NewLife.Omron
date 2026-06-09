@@ -58,7 +58,7 @@ IoT集成：实现NewLife.IoT驱动接口(DriverBase/INode/IDriverParameter)，�
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NewLife.IoT" Version="3.0.2026.518-beta1452" />
+    <PackageReference Include="NewLife.IoT" Version="3.0.2026.601" />
   </ItemGroup>
 
   <ItemGroup>

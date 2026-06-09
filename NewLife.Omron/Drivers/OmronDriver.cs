@@ -2,9 +2,7 @@
 using NewLife.IoT;
 using NewLife.IoT.Drivers;
 using NewLife.IoT.ThingModels;
-using NewLife.Log;
 using NewLife.Omron.Protocols;
-using NewLife.Serialization;
 
 namespace NewLife.Omron.Drivers;
 
@@ -164,7 +162,7 @@ public class OmronDriver : DriverBase
 
             // 先做类型转换，不支持的类型直接抛出 ArgumentException（此处不依赖 _finsClient）
             var transform = _finsClient?.Transform ?? new ByteTransform();
-            Byte[] data = value switch
+            var data = value switch
             {
                 Int32 v1 => transform.TransByte(v1),
                 Int16 v2 => transform.TransByte(v2),
@@ -173,7 +171,7 @@ public class OmronDriver : DriverBase
                 Single v5 => transform.TransByte(v5),
                 Double v6 => transform.TransByte(v6),
                 String v7 => System.Text.Encoding.UTF8.GetBytes(v7), // UTF-8编码支持中文等多字节字符
-                Boolean v8 => new Byte[] { (Byte)(v8 ? 1 : 0), 0x00 }, // FINS要求字对齐，Bool占1字节补充填充字节
+                Boolean v8 => [(Byte)(v8 ? 1 : 0), 0x00], // FINS要求字对齐，Bool占1字节补充填充字节
                 Byte[] v9 => v9,
                 _ => throw new ArgumentException($"暂不支持写入该类型数据: {value?.GetType().Name}"),
             };
