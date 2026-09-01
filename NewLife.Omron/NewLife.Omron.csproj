@@ -51,14 +51,14 @@ IoT集成：实现NewLife.IoT驱动接口(DriverBase/INode/IDriverParameter)，�
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.400">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NewLife.IoT" Version="3.0.2026.601" />
+    <PackageReference Include="NewLife.IoT" Version="3.1.2026.801" />
   </ItemGroup>
 
   <ItemGroup>
