@@ -10,6 +10,7 @@
 ### 工程与 CI
 - **发布工作流重构**：对齐 NewLife.Core，推送 `v` 前缀标签时同时发布 GitHub Packages 与 NuGet.org，并按 ChangeLog 对应段落创建同名 GitHub Release（资产含 nupkg/snupkg）；手工触发只发包
 - **CI 迁移至 Ubuntu**：测试、正式版与测试版工作流统一运行于 `ubuntu-latest`，dotnet SDK 收敛为 8/9/10
+- **解决方案升级**：`NewLife.Omron.sln` 升级为 `.slnx` 格式，并新增 `global.json` 固定 SDK 10
 
 ### 文档
 - **Readme 同步**：生态版图与团队介绍逐字对齐 NewLife.Core；单元测试统计更新为 555 个
