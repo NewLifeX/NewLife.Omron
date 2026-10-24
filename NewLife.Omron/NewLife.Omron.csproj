@@ -28,19 +28,10 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>物联网;IoT;边缘计算;Edge;新生命团队;NewLife;PLC;欧姆龙;OMRON;FINS;FinsClient;FinsUdp;HostLink;工业自动化;数据采集;设备监控;SCADA;通信协议;自动重连;异步;BatchRead;FinsServer;$(AssemblyName)</PackageTags>
     <PackageReleaseNotes>
-v1.1 首个正式版本
-三种协议：完整实现 FINS/TCP、FINS/UDP、HostLink(C-mode) 三种协议，支持以太网和串口(RS-232C/422/485)通信
-27种命令：存储区读写、位操作、填充、传送、多区域读取、CPU控制(Run/Stop)、设备信息、时钟读写、错误管理、参数/程序区操作、访问权控制
-全部存储区：DM/CIO/WR/HR/AR/EM(多Bank)/TIM/CNT/IR/DR，支持 D100、CIO200.5、EM0:100 等地址格式
-类型化API：Int16~Int64/UInt16~UInt64/Single/Double/Boolean/String/Byte[]，三个客户端均提供完整的同步+异步版本
-四种字节序：ABCD(大端)/BADC(字内交换)/CDAB(欧姆龙默认)/DCBA(小端)
-批量读取：自动合并同区域相邻/重叠地址，单次通信减少50%+
-自动重连：网络断开自动重连，退避重试(1s/2s/3s)，支持连接错误检测
-异步编程：全部API提供Async版本，ConfigureAwait(false)避免死锁，异步超时与重连
-模拟服务器：FinsServer模拟欧姆龙PLC，支持全部存储区和27种命令，无需真实PLC即可开发调试
-IoT集成：实现NewLife.IoT驱动接口(DriverBase/INode/IDriverParameter)，多通道共享连接，引用计数管理
-线程安全：同步方法使用lock，异步方法使用SemaphoreSlim(1,1)
-完整测试：52个单元测试 + 25个集成测试，覆盖全部核心功能
+v1.1.2026.1024
+依赖升级：NewLife.IoT 升级至 3.2.2026.1024；SourceLink 升级至 10.0.402；测试框架升级至 Microsoft.NET.Test.Sdk 18.11.0、xunit.runner.visualstudio 4.0.1、coverlet.collector 10.1.0
+发布流程：对齐 NewLife.Core，推送 v 标签时同时发布 GitHub Packages 与 NuGet.org，并创建 GitHub Release
+完整测试：555 个单元测试全部通过，覆盖 FINS/TCP、FINS/UDP、HostLink 三种协议与 27 种命令
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -51,14 +42,14 @@ IoT集成：实现NewLife.IoT驱动接口(DriverBase/INode/IDriverParameter)，�
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.400">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.402">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NewLife.IoT" Version="3.1.2026.801" />
+    <PackageReference Include="NewLife.IoT" Version="3.2.2026.1024" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,21 @@
 # NewLife.Omron 版本更新记录
 
+## v1.1.2026.1024 (2026-10-24)
+
+### 依赖升级
+- **NewLife.IoT 升级**：升级至 `3.2.2026.1024`
+- **构建工具链升级**：Microsoft.SourceLink.GitHub 升级至 `10.0.402`
+- **测试框架升级**：Microsoft.NET.Test.Sdk 升级至 `18.11.0`，xunit.runner.visualstudio 升级至 `4.0.1`，coverlet.collector 升级至 `10.1.0`
+
+### 工程与 CI
+- **发布工作流重构**：对齐 NewLife.Core，推送 `v` 前缀标签时同时发布 GitHub Packages 与 NuGet.org，并按 ChangeLog 对应段落创建同名 GitHub Release（资产含 nupkg/snupkg）；手工触发只发包
+- **CI 迁移至 Ubuntu**：测试、正式版与测试版工作流统一运行于 `ubuntu-latest`，dotnet SDK 收敛为 8/9/10
+
+### 文档
+- **Readme 同步**：生态版图与团队介绍逐字对齐 NewLife.Core；单元测试统计更新为 555 个
+
+---
+
 ## v1.1.2026.0902 (2026-09-02)
 
 ### 依赖升级
