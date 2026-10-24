@@ -36,13 +36,9 @@ jobs:
         dotnet nuget push ./out/*.nupkg --skip-duplicate --source https://nuget.pkg.github.com/NewLifeX/index.json --api-key ${{ github.token }}
     - name: Publish to NuGet.org
       id: nuget
+      # dotnet nuget push 会自动附带同目录下的 .snupkg 符号包，无需单独推送
       run: |
         dotnet nuget push ./out/*.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.nugetKey }}
-    - name: Publish symbols to NuGet.org
-      # 符号包单独推送，失败不影响主包
-      continue-on-error: true
-      run: |
-        dotnet nuget push ./out/*.snupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.nugetKey }}
     - name: Create GitHub Release
       id: release
       # 仅 tag 推送时创建；手工触发（master 无 tag）只发包

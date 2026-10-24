@@ -3,7 +3,7 @@ using Xunit;
 
 namespace XUnitTest.Protocols;
 
-/// <summary>MemoryAreaÃ¶¾ÙºÍ¸¨Öú·½·¨²âÊÔ</summary>
+/// <summary>MemoryAreaæšä¸¾å’Œè¾…åŠ©æ–¹æ³•æµ‹è¯•</summary>
 public class MemoryAreaTests
 {
     [Theory]
@@ -50,7 +50,7 @@ public class MemoryAreaTests
         Assert.Equal(expectedBitArea, MemoryAreaHelper.GetBitAreaCode(wordArea));
     }
 
-    [Fact(DisplayName = "²»Ö§³ÖµÄ×ÖÇøÓòµ÷ÓÃGetBitAreaCodeÓ¦Å×³öÒì³£")]
+    [Fact(DisplayName = "ä¸æ”¯æŒçš„å­—åŒºåŸŸè°ƒç”¨GetBitAreaCodeåº”æŠ›å‡ºå¼‚å¸¸")]
     public void GetBitAreaCodeUnsupportedShouldThrow()
     {
         Assert.Throws<ArgumentException>(() => MemoryAreaHelper.GetBitAreaCode(0xFF));

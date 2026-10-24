@@ -3,10 +3,10 @@ using Xunit;
 
 namespace XUnitTest.Protocols;
 
-/// <summary>FinsHeaderĞòÁĞ»¯²âÊÔ</summary>
+/// <summary>FinsHeaderåºåˆ—åŒ–æµ‹è¯•</summary>
 public class FinsHeaderTests
 {
-    [Fact(DisplayName = "Ä¬ÈÏÍ·²¿ĞòÁĞ»¯")]
+    [Fact(DisplayName = "é»˜è®¤å¤´éƒ¨åºåˆ—åŒ–")]
     public void DefaultHeaderToBytes()
     {
         var header = new FinsHeader();
@@ -18,7 +18,7 @@ public class FinsHeaderTests
         Assert.Equal(0x02, bytes[2]); // GCT
     }
 
-    [Fact(DisplayName = "×Ô¶¨ÒåÍ·²¿ĞòÁĞ»¯")]
+    [Fact(DisplayName = "è‡ªå®šä¹‰å¤´éƒ¨åºåˆ—åŒ–")]
     public void CustomHeaderToBytes()
     {
         var header = new FinsHeader
@@ -43,7 +43,7 @@ public class FinsHeaderTests
         Assert.Equal(0x07, bytes[9]); // SID
     }
 
-    [Fact(DisplayName = "´Ó×Ö½ÚÊı×é½âÎö")]
+    [Fact(DisplayName = "ä»å­—èŠ‚æ•°ç»„è§£æ")]
     public void ParseFromBytes()
     {
         var data = new Byte[] { 0x80, 0x00, 0x02, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
@@ -60,7 +60,7 @@ public class FinsHeaderTests
         Assert.Equal(0x07, header.SID);
     }
 
-    [Fact(DisplayName = "´øÆ«ÒÆ½âÎö")]
+    [Fact(DisplayName = "å¸¦åç§»è§£æ")]
     public void ParseWithOffset()
     {
         var data = new Byte[] { 0xFF, 0xFF, 0x80, 0x00, 0x02, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
@@ -70,14 +70,14 @@ public class FinsHeaderTests
         Assert.Equal(0x07, header.SID);
     }
 
-    [Fact(DisplayName = "Êı¾İ²»×ãÓ¦Å×³öÒì³£")]
+    [Fact(DisplayName = "æ•°æ®ä¸è¶³åº”æŠ›å‡ºå¼‚å¸¸")]
     public void ParseInsufficientDataShouldThrow()
     {
         Assert.Throws<ArgumentException>(() => FinsHeader.Parse(new Byte[5]));
         Assert.Throws<ArgumentException>(() => FinsHeader.Parse(null));
     }
 
-    [Fact(DisplayName = "Íù·µĞòÁĞ»¯Ò»ÖÂ")]
+    [Fact(DisplayName = "å¾€è¿”åºåˆ—åŒ–ä¸€è‡´")]
     public void RoundTrip()
     {
         var original = new FinsHeader
